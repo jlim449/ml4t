@@ -58,7 +58,32 @@ def get_spin_result(win_prob):
     if np.random.random() <= win_prob:  		  	   		 	 	 			  		 			 	 	 		 		 	
         result = True  		  	   		 	 	 			  		 			 	 	 		 		 	
     return result  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+def simulate_episode():
+    bet_amount = 1
+    episode_winning = 0
+    win_prob = 18/38
+    history = np.zeros(1000)
+
+    for i in range(1000):
+
+        if episode_winning >= 80:
+            history[i] = episode_winning
+            continue
+
+        won = get_spin_result(win_prob)
+        if won:
+            episode_winning += bet_amount
+        #     set bet to 1
+            bet_amount = 1
+        else:
+            episode_winning -= bet_amount
+            bet_amount *= 2
+        history[i] = episode_winning
+
+    return history
+
+
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -68,7 +93,8 @@ def test_code():
     np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
     # add your code here to implement the experiments  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+    result = simulate_episode()
+    result
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
     test_code()  		  	   		 	 	 			  		 			 	 	 		 		 	
