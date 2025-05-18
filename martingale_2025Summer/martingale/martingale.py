@@ -59,7 +59,7 @@ def get_spin_result(win_prob):
         result = True  		  	   		 	 	 			  		 			 	 	 		 		 	
     return result
 
-def simulate_single_episode(experiment = 1) -> np.ndarray:
+def simulate_single_episode(experiment) -> np.ndarray:
     history = np.zeros(1001)
     episode_winning = 0
     bet_amount = 1
@@ -116,9 +116,9 @@ def simulate_single_episode(experiment = 1) -> np.ndarray:
 
 
 
-def simulate_episode(episodes : int = 1) -> np.ndarray:
+def simulate_episode(episodes : int = 1, experiment_no : int = 1) -> np.ndarray:
 
-    simulation = np.array([simulate_single_episode(experiment= 2) for _ in range(episodes)])
+    simulation = np.array([simulate_single_episode(experiment= experiment_no) for _ in range(episodes)])
     return simulation
 
 
@@ -126,25 +126,44 @@ def visualize_spins(sim_result : np.ndarray , max_spins : None) -> None:
     """
     Visualize the spins of the roulette wheel
     """
-    if max_spins is not None:
-        x = np.arange(1, max_spins)
-        plt.figure(figsize=(10, 5))
-        for idx, row in enumerate(sim_result):
-            plt.plot(x, row[1:max_spins], alpha=0.5, label=f"Episode {idx+1}")
-        plt.xlabel("Spin")
-        plt.ylabel("Winnings")
-        plt.ylim(-100, 256)
-        plt.title("Martingale Simulation")
-        plt.legend()
-        plt.show()
-        print('done')
+    max_spins = max_spins if max_spins is not None else 1000
+    x = np.arange(1, max_spins)
+    plt.figure(figsize=(10, 5))
+    for idx, row in enumerate(sim_result):
+        plt.plot(x, row[1:max_spins], alpha=0.5, label=f"Episode {idx+1}")
+    plt.xlabel("Spin")
+    plt.ylabel("Winnings")
+    plt.ylim(-100, 256)
+    plt.title("Martingale Simulation")
+    plt.legend()
+    plt.show()
+
+def visualize_spins_stats(spin_stats : dict, max_spins : None) -> None:
+    """
+    Visualize the spins of the roulette wheel
+    """
+    max_spins = max_spins if max_spins is not None else 1000
+    x = np.arange(1, max_spins)
+    plt.figure(figsize=(10, 5))
 
 
+    # draw mean line
+    mean_numpy = spin_stats.get('mean')
+    std_numpy = spin_stats.get('std')
+    median_numpy = spin_stats.get('median')
 
+    plt.plot(x, mean_numpy[1:max_spins], alpha=0.8, label=f"Mean", color = 'blue', linewidth=3)
+    plt.plot(x, mean_numpy[1:max_spins] + std_numpy[1:max_spins], alpha=0.5, label=f"Mean + Std", linestyle='--', color = 'red', linewidth=1.5)
+    plt.plot(x, mean_numpy[1:max_spins] - std_numpy[1:max_spins], alpha=0.5, label=f"Mean - Std", linestyle='--', color = 'orange', linewidth=1.5)
 
+    plt.xlabel("Spin No.")
+    plt.ylabel("Winnings")
+    plt.ylim(-100, 256)
+    plt.title("Martingale Simulation")
+    plt.legend()
+    plt.show()
 
-
-
+    print('done')
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -155,12 +174,21 @@ def test_code():
     np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
     # add your code here to implement the experiments  		  	   		 	 	 			  		 			 	 	 		 		 	
-    result = simulate_episode(episodes=3)
+    result = simulate_episode(episodes=1000, experiment_no=2)
     spin_mean = np.mean(result, axis = 0)
     spin_std = np.std(result, axis = 0)
     spin_median = np.median(result, axis=0)
+    spin_stats = {
+        'mean': spin_mean,
+        'std': spin_std,
+        'median': spin_median
+    }
 
+    visualize_spins_stats(spin_stats, max_spins=300)
     visualize_spins(sim_result = result, max_spins = 300)
+
+    print('done')
+
 
 
 
