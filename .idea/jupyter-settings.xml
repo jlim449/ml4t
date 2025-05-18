@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JupyterPersistentConnectionParameters">
+    <option name="knownRemoteServers">
+      <list>
+        <JupyterConnectionParameters>
+          <option name="authType" value="notebook" />
+          <option name="token" value="1f46723f7552ec2d4d6a517ef5a16f43b9caee80f792a4d6 " />
+          <option name="urlString" value="http://127.0.0.1:8888/" />
+          <authParams2>
+            <map>
+              <entry key="token" value="1f46723f7552ec2d4d6a517ef5a16f43b9caee80f792a4d6 " />
+            </map>
+          </authParams2>
+        </JupyterConnectionParameters>
+        <JupyterConnectionParameters>
+          <option name="authType" value="notebook" />
+          <option name="token" value="041f7fcdcf281e13eceaa451db203371536171288be0cd32" />
+          <option name="urlString" value="http://localhost:8888/" />
+          <authParams2>
+            <map>
+              <entry key="token" value="041f7fcdcf281e13eceaa451db203371536171288be0cd32" />
+            </map>
+          </authParams2>
+        </JupyterConnectionParameters>
+      </list>
+    </option>
+    <option name="moduleParameters">
+      <map>
+        <entry key="$USER_HOME$/Library/CloudStorage/OneDrive-Personal/OMSCS/KBAI_Assignments/.idea/KBAI_Assignments.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="authType" value="notebook" />
+              <option name="token" value="041f7fcdcf281e13eceaa451db203371536171288be0cd32" />
+              <option name="urlString" value="http://localhost:8888/" />
+              <authParams2>
+                <map>
+                  <entry key="token" value="041f7fcdcf281e13eceaa451db203371536171288be0cd32" />
+                </map>
+              </authParams2>
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/Library/CloudStorage/OneDrive-한국방송통신대학교/Bayesian/.idea/Bayesian.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="authType" value="notebook" />
+              <option name="token" value="0253a472d90bdf61ded87e304d159dc16f8fffe66b4293ea" />
+              <option name="urlString" value="http://localhost:8888/" />
+              <authParams2>
+                <map>
+                  <entry key="token" value="0253a472d90bdf61ded87e304d159dc16f8fffe66b4293ea" />
+                </map>
+              </authParams2>
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/Library/CloudStorage/OneDrive-한국방송통신대학교/Bayesian/Assignments/HW5/.idea/HW5.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="authType" value="notebook" />
+              <option name="token" value="1f46723f7552ec2d4d6a517ef5a16f43b9caee80f792a4d6 " />
+              <option name="urlString" value="http://127.0.0.1:8888/" />
+              <authParams2>
+                <map>
+                  <entry key="token" value="1f46723f7552ec2d4d6a517ef5a16f43b9caee80f792a4d6 " />
+                </map>
+              </authParams2>
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../naverLandScraper/.idea/naverLandScraper.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="authType" value="notebook" />
+              <option name="token" value="60c135a805331002d8753978104b2c8bf9e3187942b17f94" />
+              <option name="urlString" value="http://localhost:8888/" />
+              <authParams2>
+                <map>
+                  <entry key="token" value="60c135a805331002d8753978104b2c8bf9e3187942b17f94" />
+                </map>
+              </authParams2>
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

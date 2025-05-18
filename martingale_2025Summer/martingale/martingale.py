@@ -59,29 +59,36 @@ def get_spin_result(win_prob):
         result = True  		  	   		 	 	 			  		 			 	 	 		 		 	
     return result  		  	   		 	 	 			  		 			 	 	 		 		 	
 
-def simulate_episode():
-    bet_amount = 1
-    episode_winning = 0
-    win_prob = 18/38
-    history = np.zeros(1000)
+def simulate_episode(episodes : int = 1) -> np.ndarray:
 
-    for i in range(1000):
+    history = np.zeros((1001, episodes))
 
-        if episode_winning >= 80:
-            history[i] = episode_winning
-            continue
+    win_prob = 18 / 38
 
-        won = get_spin_result(win_prob)
-        if won:
-            episode_winning += bet_amount
-        #     set bet to 1
-            bet_amount = 1
-        else:
-            episode_winning -= bet_amount
-            bet_amount *= 2
-        history[i] = episode_winning
+    for episode in range(episodes):
 
-    return history
+
+        bet_amount = 1
+        episode_winning = 0
+
+
+        for i in range(1, 1001):
+
+            if episode_winning >= 80:
+                history[i, episode] = episode_winning
+                continue
+
+            won = get_spin_result(win_prob)
+            if won:
+                episode_winning += bet_amount
+            #     set bet to 1
+                bet_amount = 1
+            else:
+                episode_winning -= bet_amount
+                bet_amount *= 2
+            history[i, episode] = episode_winning
+
+    return history.transpose()
 
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -93,8 +100,15 @@ def test_code():
     np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
     # add your code here to implement the experiments  		  	   		 	 	 			  		 			 	 	 		 		 	
-    result = simulate_episode()
-    result
+    result = simulate_episode(episodes=1000)
+    spin_mean = np.mean(result, axis = 0)
+    spin_std = np.std(result, axis = 0)
+    spin_median = np.median(result, axis=0)
+
+    print(spin_mean, spin_std, spin_median)
+
+
+    
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
     test_code()  		  	   		 	 	 			  		 			 	 	 		 		 	
