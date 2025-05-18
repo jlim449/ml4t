@@ -1,5 +1,4 @@
-""""""  		  	   		 	 	 			  		 			 	 	 		 		 	
-"""Assess a betting strategy.  		  	   		 	 	 			  		 			 	 	 		 		 	
+"""Assess a betting strategy.
   		  	   		 	 	 			  		 			 	 	 		 		 	
 Copyright 2018, Georgia Institute of Technology (Georgia Tech)  		  	   		 	 	 			  		 			 	 	 		 		 	
 Atlanta, Georgia 30332  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -57,38 +56,38 @@ def get_spin_result(win_prob):
     result = False  		  	   		 	 	 			  		 			 	 	 		 		 	
     if np.random.random() <= win_prob:  		  	   		 	 	 			  		 			 	 	 		 		 	
         result = True  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return result  		  	   		 	 	 			  		 			 	 	 		 		 	
+    return result
+
+def simulate_single_episode() -> np.ndarray:
+    history = np.zeros(1001)
+    episode_winning = 0
+    bet_amount = 1
+    win_prob = 18 / 38
+
+    for i in range(1, 1001):
+
+        if episode_winning >= 80:
+            history[i] = episode_winning
+            continue
+
+        won = get_spin_result(win_prob)
+        if won:
+            episode_winning += bet_amount
+        #     set bet to 1
+            bet_amount = 1
+        else:
+            episode_winning -= bet_amount
+            bet_amount *= 2
+        history[i] = episode_winning
+
+    return history
+
+
 
 def simulate_episode(episodes : int = 1) -> np.ndarray:
 
-    history = np.zeros((1001, episodes))
-
-    win_prob = 18 / 38
-
-    for episode in range(episodes):
-
-
-        bet_amount = 1
-        episode_winning = 0
-
-
-        for i in range(1, 1001):
-
-            if episode_winning >= 80:
-                history[i, episode] = episode_winning
-                continue
-
-            won = get_spin_result(win_prob)
-            if won:
-                episode_winning += bet_amount
-            #     set bet to 1
-                bet_amount = 1
-            else:
-                episode_winning -= bet_amount
-                bet_amount *= 2
-            history[i, episode] = episode_winning
-
-    return history.transpose()
+    simulation = np.array([simulate_single_episode() for _ in range(episodes)])
+    return simulation.transpose()
 
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -100,7 +99,7 @@ def test_code():
     np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
     # add your code here to implement the experiments  		  	   		 	 	 			  		 			 	 	 		 		 	
-    result = simulate_episode(episodes=1000)
+    result = simulate_episode(episodes=3)
     spin_mean = np.mean(result, axis = 0)
     spin_std = np.std(result, axis = 0)
     spin_median = np.median(result, axis=0)
