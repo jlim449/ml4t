@@ -25,7 +25,8 @@ GT User ID: tb34 (replace with your User ID)
 GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-import numpy as np  		  	   		 	 	 			  		 			 	 	 		 		 	
+import numpy as np
+import matplotlib.pyplot as plt
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def author():  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -58,36 +59,91 @@ def get_spin_result(win_prob):
         result = True  		  	   		 	 	 			  		 			 	 	 		 		 	
     return result
 
-def simulate_single_episode() -> np.ndarray:
+def simulate_single_episode(experiment = 1) -> np.ndarray:
     history = np.zeros(1001)
     episode_winning = 0
     bet_amount = 1
     win_prob = 18 / 38
 
-    for i in range(1, 1001):
+    match experiment:
 
-        if episode_winning >= 80:
-            history[i] = episode_winning
-            continue
+        #         experiment 1
+        case 1:
+            for i in range(1, 1001):
 
-        won = get_spin_result(win_prob)
-        if won:
-            episode_winning += bet_amount
-        #     set bet to 1
-            bet_amount = 1
-        else:
-            episode_winning -= bet_amount
-            bet_amount *= 2
-        history[i] = episode_winning
+                if episode_winning >= 80:
+                    history[i] = episode_winning
+                    continue
 
+                won = get_spin_result(win_prob)
+                if won:
+                    episode_winning += bet_amount
+                #     set bet to 1
+                    bet_amount = 1
+                else:
+                    episode_winning -= bet_amount
+                    bet_amount *= 2
+                history[i] = episode_winning
+
+        #         experiment 2
+
+        case 2:
+            bankroll = 256
+
+            for i in range(1, 1001):
+
+                bet_amount = min(bet_amount, bankroll)
+
+                if episode_winning >= 80 or bankroll <= 0:
+                    history[i] = episode_winning if episode_winning > 0 else -256
+                    continue
+
+                won = get_spin_result(win_prob)
+                if won:
+                    # handling special case when bet_amount is more than the epsiode_winning
+                    # betting amount should mininum of epdisode_winning and bet_amount
+                    bankroll += bet_amount
+                    episode_winning += bet_amount
+                #    reset bet to 1
+                    bet_amount = 1
+                else:
+                    bankroll -= bet_amount
+                    episode_winning -= bet_amount
+                    bet_amount *= 2
+
+                history[i] = episode_winning
     return history
 
 
 
 def simulate_episode(episodes : int = 1) -> np.ndarray:
 
-    simulation = np.array([simulate_single_episode() for _ in range(episodes)])
-    return simulation.transpose()
+    simulation = np.array([simulate_single_episode(experiment= 2) for _ in range(episodes)])
+    return simulation
+
+
+def visualize_spins(sim_result : np.ndarray , max_spins : None) -> None:
+    """
+    Visualize the spins of the roulette wheel
+    """
+    if max_spins is not None:
+        x = np.arange(1, max_spins)
+        plt.figure(figsize=(10, 5))
+        for idx, row in enumerate(sim_result):
+            plt.plot(x, row[1:max_spins], alpha=0.5, label=f"Episode {idx+1}")
+        plt.xlabel("Spin")
+        plt.ylabel("Winnings")
+        plt.ylim(-100, 256)
+        plt.title("Martingale Simulation")
+        plt.legend()
+        plt.show()
+        print('done')
+
+
+
+
+
+
 
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -104,7 +160,9 @@ def test_code():
     spin_std = np.std(result, axis = 0)
     spin_median = np.median(result, axis=0)
 
-    print(spin_mean, spin_std, spin_median)
+    visualize_spins(sim_result = result, max_spins = 300)
+
+
 
 
     
