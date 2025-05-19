@@ -6,4 +6,7 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-data/*.csv
+/data/
+.DS_Store
+Miniconda3-latest-MacOSX-arm64.sh
+
