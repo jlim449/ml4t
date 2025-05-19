@@ -138,7 +138,7 @@ def visualize_spins(sim_result : np.ndarray , max_spins : None) -> None:
     plt.legend()
     plt.show()
 
-def visualize_spins_stats(spin_stats : dict, max_spins : None) -> None:
+def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str) -> None:
     """
     Visualize the spins of the roulette wheel
     """
@@ -152,9 +152,15 @@ def visualize_spins_stats(spin_stats : dict, max_spins : None) -> None:
     std_numpy = spin_stats.get('std')
     median_numpy = spin_stats.get('median')
 
-    plt.plot(x, mean_numpy[1:max_spins], alpha=0.8, label=f"Mean", color = 'blue', linewidth=3)
-    plt.plot(x, mean_numpy[1:max_spins] + std_numpy[1:max_spins], alpha=0.5, label=f"Mean + Std", linestyle='--', color = 'red', linewidth=1.5)
-    plt.plot(x, mean_numpy[1:max_spins] - std_numpy[1:max_spins], alpha=0.5, label=f"Mean - Std", linestyle='--', color = 'orange', linewidth=1.5)
+    if main_graph == 'mean':
+        plt.plot(x, mean_numpy[1:max_spins], alpha=0.8, label=f"Mean", color = 'blue', linewidth=3)
+        plt.plot(x, mean_numpy[1:max_spins] + std_numpy[1:max_spins], alpha=0.5, label=f"Mean + Std", linestyle='--', color = 'red', linewidth=1.5)
+        plt.plot(x, mean_numpy[1:max_spins] - std_numpy[1:max_spins], alpha=0.5, label=f"Mean - Std", linestyle='--', color = 'orange', linewidth=1.5)
+    elif main_graph == 'median':
+        plt.plot(x, median_numpy[1:max_spins], alpha=0.8, label=f"Median", color = 'blue', linewidth=3)
+        plt.plot(x, median_numpy[1:max_spins] + std_numpy[1:max_spins], alpha=0.5, label=f"Median + Std", linestyle='--', color = 'red', linewidth=1.5)
+        plt.plot(x, median_numpy[1:max_spins] - std_numpy[1:max_spins], alpha=0.5, label=f"Median - Std", linestyle='--', color = 'orange', linewidth=1.5)
+
 
     plt.xlabel("Spin No.")
     plt.ylabel("Winnings")
@@ -173,7 +179,25 @@ def test_code():
     win_prob = 0.60  # set appropriately to the probability of a win  		  	   		 	 	 			  		 			 	 	 		 		 	
     np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
-    # add your code here to implement the experiments  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # add your code here to implement the experiments
+
+    # experiment 1
+    result = simulate_episode(episodes=3, experiment_no=1)
+    spin_mean = np.mean(result, axis = 0)
+    spin_std = np.std(result, axis = 0)
+    spin_median = np.median(result, axis=0)
+    spin_stats = {
+        'mean': spin_mean,
+        'std': spin_std,
+        'median': spin_median
+    }
+    visualize_spins(sim_result=result, max_spins=300)
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median')
+
+
+
+    # experiment 2
     result = simulate_episode(episodes=1000, experiment_no=2)
     spin_mean = np.mean(result, axis = 0)
     spin_std = np.std(result, axis = 0)
@@ -184,8 +208,9 @@ def test_code():
         'median': spin_median
     }
 
-    visualize_spins_stats(spin_stats, max_spins=300)
-    visualize_spins(sim_result = result, max_spins = 300)
+
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median')
 
     print('done')
 
