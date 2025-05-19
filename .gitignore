@@ -1,3 +1,4 @@
 /data/*.csv
 /Miniconda3-latest-MacOSX-arm64.sh
 *.txt
+.DS_Store
