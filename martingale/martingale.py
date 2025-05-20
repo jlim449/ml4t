@@ -169,20 +169,45 @@ def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str)
     plt.legend()
     plt.show()
 
-    print('done')
+def compute_prop(simulation_result):
 
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+    total_epsisodes = simulation_result.shape[0]
+    final_result = simulation_result[:, -1]
+    wins = np.sum(final_result == 80)
+    prob = wins / total_epsisodes
+
+    return prob
+
+
+
+def expected_value(simulation_result):
+
+    total_epsisodes = simulation_result.shape[0]
+    final_result = simulation_result[:, -1]
+    unique_elements, counts = np.unique(final_result, return_counts=True)
+
+    # prob = wins / total_epsisodes
+
+    prob = dict(zip(unique_elements, counts / total_epsisodes))
+    expected_value = sum(x * p for x, p in prob.items())
+
+    return expected_value
+
+
+
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     Method to test your code  		  	   		 	 	 			  		 			 	 	 		 		 	
-    """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    win_prob = 0.60  # set appropriately to the probability of a win  		  	   		 	 	 			  		 			 	 	 		 		 	
-    np.random.seed(gtid())  # do this only once  		  	   		 	 	 			  		 			 	 	 		 		 	
-    print(get_spin_result(win_prob))  # test the roulette spin  		  	   		 	 	 			  		 			 	 	 		 		 	
+    """
+    win_prob = 0.60  # set appropriately to the probability of a win
+    np.random.seed(gtid())  # do this only once
+    print(get_spin_result(win_prob))  # test the roulette spin
     # add your code here to implement the experiments
 
     # experiment 1
     result = simulate_episode(episodes=3, experiment_no=1)
+    prob = compute_prop(result)
+    prob
     spin_mean = np.mean(result, axis = 0)
     spin_std = np.std(result, axis = 0)
     spin_median = np.median(result, axis=0)
@@ -199,6 +224,10 @@ def test_code():
 
     # experiment 2
     result = simulate_episode(episodes=1000, experiment_no=2)
+
+    prob = expected_value(result)
+    prob
+
     spin_mean = np.mean(result, axis = 0)
     spin_std = np.std(result, axis = 0)
     spin_median = np.median(result, axis=0)
@@ -212,13 +241,6 @@ def test_code():
     visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean')
     visualize_spins_stats(spin_stats, max_spins=300, main_graph='median')
 
-    print('done')
-
-
-
-
-
-    
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
     test_code()  		  	   		 	 	 			  		 			 	 	 		 		 	
