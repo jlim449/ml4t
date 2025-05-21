@@ -26,9 +26,8 @@ GT ID: 900897987 (replace with your GT ID)
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np
-import matplotlib.pyplot as plt
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+import matplotlib.pyplot as plt  		  	   		 	 	 			  		 			 	 	 		 		 	
+  		  	   		 	 	                                		  		 			 	 	 		 		 	
 def author():  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     :return: The GT username of the student  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -122,7 +121,7 @@ def simulate_episode(episodes : int = 1, experiment_no : int = 1) -> np.ndarray:
     return simulation
 
 
-def visualize_spins(sim_result : np.ndarray , max_spins : None) -> None:
+def visualize_spins(sim_result : np.ndarray , max_spins : None, filename : str = None) -> None:
     """
     Visualize the spins of the roulette wheel
     """
@@ -136,9 +135,12 @@ def visualize_spins(sim_result : np.ndarray , max_spins : None) -> None:
     plt.ylim(-100, 256)
     plt.title("Martingale Simulation")
     plt.legend()
-    plt.show()
+    if filename:
+       plt.savefig(f'{filename}.png')
+    else:
+        return None
 
-def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str) -> None:
+def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str, filename : str  = None) -> None:
     """
     Visualize the spins of the roulette wheel
     """
@@ -167,7 +169,10 @@ def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str)
     plt.ylim(-100, 256)
     plt.title("Martingale Simulation")
     plt.legend()
-    plt.show()
+    if filename:
+        plt.savefig(f'{filename}.png')
+    else:
+        return None
 
 def compute_prop(simulation_result):
 
@@ -216,9 +221,9 @@ def test_code():
         'std': spin_std,
         'median': spin_median
     }
-    visualize_spins(sim_result=result, max_spins=300)
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean')
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median')
+    visualize_spins(sim_result=result, max_spins=300, filename='figure1')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean', filename='figure2')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median', filename='figure3')
 
 
 
@@ -238,8 +243,8 @@ def test_code():
     }
 
 
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean')
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean', filename='figure4')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median', filename='figure5')
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
