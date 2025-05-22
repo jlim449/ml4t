@@ -33,7 +33,7 @@ def author():
     :return: The GT username of the student  		  	   		 	 	 			  		 			 	 	 		 		 	
     :rtype: str  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return "tb34"  # replace tb34 with your Georgia Tech username.  		  	   		 	 	 			  		 			 	 	 		 		 	
+    return "jlim449"  # replace tb34 with your Georgia Tech username.
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def gtid():  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -178,7 +178,7 @@ def compute_prop(simulation_result):
 
     total_epsisodes = simulation_result.shape[0]
     final_result = simulation_result[:, -1]
-    wins = np.sum(final_result == 80)
+    wins = np.sum(final_result >= 80)
     prob = wins / total_epsisodes
 
     return prob
@@ -230,7 +230,7 @@ def test_code():
     # experiment 2
     result = simulate_episode(episodes=1000, experiment_no=2)
 
-    prob = expected_value(result)
+    prob = compute_prop(result)
     prob
 
     spin_mean = np.mean(result, axis = 0)
