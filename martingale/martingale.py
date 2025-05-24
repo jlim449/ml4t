@@ -70,7 +70,7 @@ def simulate_single_episode(experiment) -> np.ndarray:
         case 1:
             for i in range(1, 1001):
 
-                if episode_winning >= 80:
+                if episode_winning == 80:
                     history[i] = episode_winning
                     continue
 
@@ -132,7 +132,7 @@ def visualize_spins(sim_result : np.ndarray , max_spins : None, filename : str =
         plt.plot(x, row[1:max_spins], alpha=0.5, label=f"Episode {idx+1}")
     plt.xlabel("Spin")
     plt.ylabel("Winnings")
-    plt.ylim(-100, 256)
+    plt.ylim(-256, 100)
     plt.title("Martingale Simulation")
     plt.legend()
     if filename:
@@ -166,7 +166,7 @@ def visualize_spins_stats(spin_stats : dict, max_spins : None, main_graph : str,
 
     plt.xlabel("Spin No.")
     plt.ylabel("Winnings")
-    plt.ylim(-100, 256)
+    plt.ylim(-256, 100)
     plt.title("Martingale Simulation")
     plt.legend()
     if filename:
@@ -200,12 +200,28 @@ def expected_value(simulation_result):
 
 
 
+def propotion_value(simulation_result) -> np.ndarray:
+
+    num_episodes, num_spins = simulation_result.shape
+
+    result = []
+
+    for i in range(1, num_spins):  # Skip spin 0 (initial state)
+        values_at_spin = simulation_result[:, i]
+        unique_values, counts = np.unique(values_at_spin, return_counts=True)
+        distribution = dict(zip(unique_values, counts / num_episodes))
+        result.append(distribution)
+    return np.array(result, dtype=object)
+
+
+
+
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     Method to test your code  		  	   		 	 	 			  		 			 	 	 		 		 	
     """
     win_prob = 0.60  # set appropriately to the probability of a win
-    np.random.seed(gtid())  # do this only once
+    # np.random.seed(gtid())  # do this only once
     print(get_spin_result(win_prob))  # test the roulette spin
     # add your code here to implement the experiments
 
@@ -243,8 +259,9 @@ def test_code():
     }
 
 
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean', filename='figure4')
-    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median', filename='figure5')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='mean', filename='figure4_testing_second')
+    visualize_spins_stats(spin_stats, max_spins=300, main_graph='median', filename='figure5_testing')
+
 
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
