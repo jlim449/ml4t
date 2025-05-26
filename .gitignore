@@ -3,5 +3,8 @@
 *.txt
 *.png
 .DS_Store
-/.idea/*.xml
-/.idea/*.iml
+*.xml
+*.iml
+.idea\*.xml
+.idea\*.iml
+*__pycache__*
