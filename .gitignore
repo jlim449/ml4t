@@ -5,3 +5,6 @@
 .DS_Store
 *.xml
 *.iml
+.idea\*.xml
+.idea\*.iml
+*__pycache__*
