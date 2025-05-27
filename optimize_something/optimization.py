@@ -32,7 +32,8 @@ import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt  		  	   		 	 	 			  		 			 	 	 		 		 	
 import pandas as pd  		  	   		 	 	 			  		 			 	 	 		 		 	
-from util import get_data, plot_data  		  	   		 	 	 			  		 			 	 	 		 		 	
+from util import get_data, plot_data
+import scipy.optimize as opt
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 # This is the function that will be tested by the autograder  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -99,6 +100,11 @@ def optimize_portfolio(
     adr = daily_returns.mean()
     sddr = daily_returns.std()
     sr = adr / sddr * np.sqrt(252)  # Annualized Sharpe Ratio
+
+    
+
+    cons = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
+
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 			  		 			 	 	 		 		 	
     if gen_plot:  		  	   		 	 	 			  		 			 	 	 		 		 	
         # add code to plot here  		  	   		 	 	 			  		 			 	 	 		 		 	
