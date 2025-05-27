@@ -25,12 +25,11 @@ Student Name: Tucker Balch (replace with your name)
 GT User ID: jlim449 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
+import sys
+sys.path.append('../')
   		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-import datetime as dt  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-import numpy as np  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+import datetime as dt
+import numpy as np
 import matplotlib.pyplot as plt  		  	   		 	 	 			  		 			 	 	 		 		 	
 import pandas as pd  		  	   		 	 	 			  		 			 	 	 		 		 	
 from util import get_data, plot_data  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -75,7 +74,7 @@ def optimize_portfolio(
     # find the allocations for the optimal portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocs = np.asarray(  		  	   		 	 	 			  		 			 	 	 		 		 	
-        [0.2, 0.2, 0.3, 0.3]  		  	   		 	 	 			  		 			 	 	 		 		 	
+        [0.2, 0.2, 0.3, 0.2, 0.1]
     )  # add code here to find the allocations  		  	   		 	 	 			  		 			 	 	 		 		 	
     cr, adr, sddr, sr = [  		  	   		 	 	 			  		 			 	 	 		 		 	
         0.25,  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -85,14 +84,35 @@ def optimize_portfolio(
     ]  # add code here to compute stats  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Get daily portfolio value  		  	   		 	 	 			  		 			 	 	 		 		 	
-    port_val = prices_SPY  # add code here to compute daily portfolio values  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # port_val = prices_SPY  # add code here to compute daily portfolio values
+    # prices * allocs
+    norm_prices = prices / prices.iloc[0]
+    allocated = norm_prices * allocs
+    port_val = allocated.sum(axis=1)
+
+
+    daily_returns = port_val.pct_change()
+    daily_returns.dropna(inplace=True)
+
+
+    cr = (port_val[-1] / port_val[0]) - 1
+    adr = daily_returns.mean()
+    sddr = daily_returns.std()
+    sr = adr / sddr * np.sqrt(252)  # Annualized Sharpe Ratio
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 			  		 			 	 	 		 		 	
     if gen_plot:  		  	   		 	 	 			  		 			 	 	 		 		 	
         # add code to plot here  		  	   		 	 	 			  		 			 	 	 		 		 	
-        df_temp = pd.concat(  		  	   		 	 	 			  		 			 	 	 		 		 	
-            [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		 	 	 			  		 			 	 	 		 		 	
-        )  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+        normalized_SPY = prices_SPY / prices_SPY.iloc[0]
+
+        df_temp = pd.concat(
+            [port_val, normalized_SPY], keys=["Portfolio", "SPY"], axis=1
+        )
+        plt.figure(figsize=(10, 6))
+        plt.plot(df_temp.index, df_temp["Portfolio"], label="Portfolio")
+        plt.plot(df_temp.index, df_temp["SPY"], label="SPY")
+        plt.legend()
+        plt.show()
         pass  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     return allocs, cr, adr, sddr, sr  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -109,7 +129,7 @@ def test_code():
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Assess the portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 			  		 			 	 	 		 		 	
-        sd=start_date, ed=end_date, syms=symbols, gen_plot=False  		  	   		 	 	 			  		 			 	 	 		 		 	
+        sd=start_date, ed=end_date, syms=symbols, gen_plot=True
     )  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Print statistics  		  	   		 	 	 			  		 			 	 	 		 		 	
