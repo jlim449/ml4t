@@ -89,9 +89,12 @@ def optimize_portfolio(
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # find the allocations for the optimal portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		 	 	 			  		 			 	 	 		 		 	
-    allocs = np.asarray(  		  	   		 	 	 			  		 			 	 	 		 		 	
-        [0.2, 0.2, 0.3, 0.3]
-    )  # add code here to find the allocations  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+    random_weights = np.random.random(len(syms))
+    allocs =  random_weights / np.sum(random_weights)  # normalize to sum to 1
+
+    allocs = np.asarray(allocs)  # convert to numpy array
+ 	   		 	 	 			  		 			 	 	 		 		 	
     cr, adr, sddr, sr = [  		  	   		 	 	 			  		 			 	 	 		 		 	
         0.25,  		  	   		 	 	 			  		 			 	 	 		 		 	
         0.001,  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -111,7 +114,6 @@ def optimize_portfolio(
 
 
     allocs = result.x
-
     norm_prices = prices / prices.iloc[0]
     allocated = norm_prices * allocs
     port_val = allocated.sum(axis=1)
@@ -120,8 +122,6 @@ def optimize_portfolio(
     adr = daily_returns.mean()
     sddr = daily_returns.std()
     sr = -sharpe_ratio(allocs, prices)
-
-
 
 
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -150,7 +150,7 @@ def test_code():
   		  	   		 	 	 			  		 			 	 	 		 		 	
     start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
     end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    symbols = ['GOOG','AAPL','GLD','XOM']
+    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Assess the portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 			  		 			 	 	 		 		 	
