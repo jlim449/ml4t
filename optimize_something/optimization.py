@@ -38,6 +38,21 @@ import scipy.optimize as opt
   		  	   		 	 	 			  		 			 	 	 		 		 	
 # This is the function that will be tested by the autograder  		  	   		 	 	 			  		 			 	 	 		 		 	
 # The student must update this code to properly implement the functionality  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+
+
+def sharpe_ratio(allocs, prices):
+    norm_prices = prices / prices.iloc[0]
+    allocated = norm_prices * allocs
+    port_val = allocated.sum(axis=1)
+    daily_returns = port_val.pct_change()
+    daily_returns.dropna(inplace=True)
+    adr = daily_returns.mean()
+    sddr = daily_returns.std()
+    return -adr / sddr * np.sqrt(252)
+
+
+
 def optimize_portfolio(  		  	   		 	 	 			  		 			 	 	 		 		 	
     sd=dt.datetime(2008, 1, 1),  		  	   		 	 	 			  		 			 	 	 		 		 	
     ed=dt.datetime(2009, 1, 1),  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -75,7 +90,7 @@ def optimize_portfolio(
     # find the allocations for the optimal portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocs = np.asarray(  		  	   		 	 	 			  		 			 	 	 		 		 	
-        [0.2, 0.2, 0.3, 0.2, 0.1]
+        [0.2, 0.2, 0.3, 0.3]
     )  # add code here to find the allocations  		  	   		 	 	 			  		 			 	 	 		 		 	
     cr, adr, sddr, sr = [  		  	   		 	 	 			  		 			 	 	 		 		 	
         0.25,  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -87,23 +102,27 @@ def optimize_portfolio(
     # Get daily portfolio value  		  	   		 	 	 			  		 			 	 	 		 		 	
     # port_val = prices_SPY  # add code here to compute daily portfolio values
     # prices * allocs
+
+
+    cons = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
+    bounds = [(0.0, 1.0)] * len(syms)
+
+    result = opt.minimize(sharpe_ratio, allocs, args=(prices,),  method='SLSQP', bounds=bounds, constraints=cons, options={'disp': True})
+
+
+    allocs = result.x
+
     norm_prices = prices / prices.iloc[0]
     allocated = norm_prices * allocs
     port_val = allocated.sum(axis=1)
-
-
     daily_returns = port_val.pct_change()
     daily_returns.dropna(inplace=True)
-
-
-    cr = (port_val[-1] / port_val[0]) - 1
     adr = daily_returns.mean()
     sddr = daily_returns.std()
-    sr = adr / sddr * np.sqrt(252)  # Annualized Sharpe Ratio
+    sr = -sharpe_ratio(allocs, prices)
 
-    
 
-    cons = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
+
 
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 			  		 			 	 	 		 		 	
     if gen_plot:  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -131,7 +150,7 @@ def test_code():
   		  	   		 	 	 			  		 			 	 	 		 		 	
     start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
     end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]  		  	   		 	 	 			  		 			 	 	 		 		 	
+    symbols = ['GOOG','AAPL','GLD','XOM']
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Assess the portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 			  		 			 	 	 		 		 	
