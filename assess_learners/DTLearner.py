@@ -203,14 +203,43 @@ class DTLearner(object):
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
         # slap on 1s column so linear regression finds a constant term
-        new_data_x = np.ones([data_x.shape[0], data_x.shape[1] + 1])
-        new_data_x[:, 0 : data_x.shape[1]] = data_x
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-        # build and save the model  		  	   		 	 	 			  		 			 	 	 		 		 	
-        self.model_coefs, residuals, rank, s = np.linalg.lstsq(  		  	   		 	 	 			  		 			 	 	 		 		 	
-            new_data_x, data_y, rcond=None  		  	   		 	 	 			  		 			 	 	 		 		 	
-        )  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+
+        tree_train = self.build_tree(data_x, data_y)
+
+
+
+
+    def traverse_tree(self, node, points):
+
+    #     while loop to traverse the tree
+        current_node = node
+
+        while current_node.left is not None and current_node.right is not None:
+            feature_value = int(current_node.feature_index)
+
+            if points[:, feature_value] <= current_node.threshold:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+
+
+        # left_mask = data_x[:, feature_index] <= threshold
+        # right_mask = data_x[:, feature_index] > threshold
+        #
+        # left_x = data_x[left_mask]
+        # left_y = data_y[left_mask]
+        #
+        # right_x = data_x[right_mask]
+        # right_y = data_y[right_mask]
+
+
+
+        return current_node.prediction
+
+
+
+
     def query(self, points):  		  	   		 	 	 			  		 			 	 	 		 		 	
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
         Estimate a set of test points given the model we built. 			  		 			 	 	 		 		 	
@@ -238,17 +267,10 @@ if __name__ == "__main__":
     y = x[:, 0] + x[:, 1] + np.random.normal(0, 0.1, 100)
 
     # Test the learner
-    learner = DTLearner(    1, verbose=True, min_samples_split=2)  # Create a DTLearner with max depth of 5 and min_samples_split of 2
-    learner.add_evidence(x, y)
-
-
-
-
-    feature_idx = learner.find_best_split(x, y)
+    learner = DTLearner(    4, verbose=True, min_samples_split=2)  # Create a DTLearner with max depth of 5 and min_samples_split of 2
     a = learner.build_tree(x, y)
-    a
 
-
+    learner.traverse_tree(a, x)
 
 
     # Test predictions
