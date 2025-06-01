@@ -21,7 +21,7 @@ GT honor code violation.
   		  	   		 	 	 			  		 			 	 	 		 		 	
 -----do not edit anything above this line---  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 			  		 			 	 	 		 		 	
+Student Name: Jae Hwan Lim (replace with your name)  		  	   		 	 	 			  		 			 	 	 		 		 	
 GT User ID: jlim449 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -134,23 +134,30 @@ def optimize_portfolio(
             [port_val, normalized_SPY], keys=["Portfolio", "SPY"], axis=1
         )
         plt.figure(figsize=(10, 6))
+        plt.title('Normalized Return : Optimal Portfolio vs SPY')
         plt.plot(df_temp.index, df_temp["Portfolio"], label="Portfolio")
         plt.plot(df_temp.index, df_temp["SPY"], label="SPY")
         plt.legend()
-        plt.show()
-        pass  		  	   		 	 	 			  		 			 	 	 		 		 	
+        plt.xlabel("Date")
+        plt.ylabel("Nomralized Value")
+        plt.savefig('Figure1.png')
+        pass
   		  	   		 	 	 			  		 			 	 	 		 		 	
-    return allocs, cr, adr, sddr, sr  		  	   		 	 	 			  		 			 	 	 		 		 	
+    return np.round(allocs, 2), cr, adr, sddr, sr
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     This function WILL NOT be called by the auto grader.  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-    start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]
+
+    # start_date = str2dt("2011-01-01"),
+    # end_date = str2dt("2011-12-31"),
+    # symbols = ["AAPL", "GLD", "GOOG", "XOM"]
+
+    start_date = dt.datetime(2011, 1, 1)
+    end_date = dt.datetime(2011, 12, 31)
+    symbols = ["AAPL", "GLD", "GOOG", "XOM"]
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Assess the portfolio  		  	   		 	 	 			  		 			 	 	 		 		 	
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 			  		 			 	 	 		 		 	
