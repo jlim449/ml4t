@@ -27,9 +27,10 @@ import numpy as np
 
 
 class Node():
-    # reference: https://github.com/Suji04/ML_from_Scratch/blob/master/decision%20tree%20classification.ipynb
-
-    def __init__(self, feature_index=None, threshold=None, left=None, right=None, mse = None, prediction=None, depth = None):
+    def __init__(self, feature_index=None, threshold=None, left=None, right=None, mse = None, prediction=None
+                 , depth = None
+                 , sample_size = None
+                 ):
         """Initialize a node in the decision tree."""
         # self.root = None
         self.feature_index = feature_index
@@ -39,6 +40,7 @@ class Node():
         self.mse = mse
         self.prediction = prediction
         self.depth = depth
+        self.sample_size = sample_size
   		  	   		 	 	 			  		 			 	 	 		 		 	
 class DTLearner(object):
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -95,64 +97,43 @@ class DTLearner(object):
         n_samples, features =  data_x.shape
 
 
+        if n_samples == 0:
+            return None, None, None
+
+
+        if len(np.unique(data_y)) == 1:
+            return {
+                'feature_index': None,
+                'threshold': None,
+                'mse': self.calculate_mse(data_y)
+            }
+        # if all values in the target y is the same return None
+
         for feature_index in range(features):
-            vals = data_x[:, feature_index]
-            # unique_values = np.sort(unique_values)
-            sort_idx = np.argsort(vals)
-
-
-            sorted_x = vals[sort_idx]
-            sorted_y = data_y[sort_idx]
-
-
-            # split samples
-
-            right_samples = n_samples
-            right_sum = np.sum(sorted_y)
-            right_sum_sq = np.sum(sorted_y ** sorted_y)
-
-            left_samples = 0
-            left_sum = 0
-            left_sum_sq = 0
-
-
-
-            if len(sorted_y) == 1:
+            if len(data_y) == 1:
                 return {
-                    'feature_index': feature_index,
-                    'threshold': sorted_x[0],
+                    'feature_index': None,
+                    'threshold': None,
                     'mse': self.calculate_mse(sorted_y)
                 }
 
 
+            split_val = np.median(data_x[:, feature_index])
+            left_mask = data_x[:, feature_index] <= split_val
+            right_mask = data_x[:, feature_index] > split_val
 
+            left_output = data_y[left_mask]
+            right_output = data_y[right_mask]
 
-            for i in range(n_samples - 1):
-                yi = float(sorted_y[i])
+            left_mse = self.calculate_mse(left_output)
+            right_mse = self.calculate_mse(right_output)
+            mse_split = (len(left_output) * left_mse + len(right_output) * right_mse) / (len(left_output) + len(right_output))
 
-
-                left_samples += 1
-                left_sum += yi
-                left_sum_sq += yi ** 2
-
-
-                right_samples -= 1
-                right_sum -= yi
-                right_sum_sq -= yi ** 2
-
-
-                mse_left = 1 / left_samples * (left_sum_sq - (left_sum ** 2) / left_samples)
-                mse_right = 1 / right_samples * (right_sum_sq - (right_sum ** 2) / right_samples)
-
-                mse_split = (left_samples * mse_left + right_samples * mse_right) / (left_samples + right_samples)
-                threshold = 0.5 * (sorted_x[i] + sorted_x[i + 1])
-
-
-                if mse_split < best_mse:
-                    best_mse = mse_split
-                    best_feature_index = feature_index
-                    best_threshold = threshold
-
+            # calculate MSE for the left and right splits
+            if mse_split < best_mse:
+                best_mse = mse_split
+                best_feature_index = feature_index
+                best_threshold = split_val
 
         return {
             'feature_index': best_feature_index,
@@ -161,15 +142,13 @@ class DTLearner(object):
         }
 
 
-
-
     def build_tree(self, data_x, data_y, current_depth=0):
-
+        sample_size = data_x.shape[0]
         if current_depth >= self.max_depth:
-            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=np.mean(data_y), depth = current_depth)
+            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=np.mean(data_y), depth = current_depth, sample_size=sample_size)
 
         if data_x.shape[0] == 1 or data_x.shape[0] < self.min_samples_split:
-            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=data_y[0] , depth = current_depth)
+            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=data_y[0] , depth = current_depth, sample_size=sample_size)
 
 
         optimal_movements = self.find_best_split(data_x, data_y)
@@ -189,55 +168,35 @@ class DTLearner(object):
                     right=right_subtree,
                     mse=optimal_movements['mse'],
                     prediction=np.mean(data_y),
-                    depth=current_depth
+                    depth=current_depth,
+                    sample_size=sample_size
                     )
 
     def add_evidence(self, data_x, data_y):  		  	   		 	 	 			  		 			 	 	 		 		 	
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        Add training data to learner  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :param data_x: A set of feature values used to train the learner  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :type data_x: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
+        Add training data to learner  		  	   		 	 	 			  		 			 	 	 		 		 	  		  	   		 	 	 			  		 			 	 	 		 		 	
         :param data_y: The value we are attempting to predict given the X data  		  	   		 	 	 			  		 			 	 	 		 		 	
         :type data_y: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+        """
         # slap on 1s column so linear regression finds a constant term
-
-
-        tree_train = self.build_tree(data_x, data_y)
-
+        self.tree_train = self.build_tree(data_x, data_y)
 
 
 
+    # question : how to to traverse the tree and get the prediction for each point?
+    # Question 2 : based on the traversal, get the average of the Y training data
     def traverse_tree(self, node, points):
-
     #     while loop to traverse the tree
         current_node = node
-
         while current_node.left is not None and current_node.right is not None:
             feature_value = int(current_node.feature_index)
+            # left and right children
 
-            if points[:, feature_value] <= current_node.threshold:
+            if points[feature_value] <= current_node.threshold:
                 current_node = current_node.left
             else:
                 current_node = current_node.right
-
-
-        # left_mask = data_x[:, feature_index] <= threshold
-        # right_mask = data_x[:, feature_index] > threshold
-        #
-        # left_x = data_x[left_mask]
-        # left_y = data_y[left_mask]
-        #
-        # right_x = data_x[right_mask]
-        # right_y = data_y[right_mask]
-
-
-
         return current_node.prediction
-
-
 
 
     def query(self, points):  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -247,33 +206,60 @@ class DTLearner(object):
         :type points: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
         :return: The predicted result of the input data according to the trained model  		  	   		 	 	 			  		 			 	 	 		 		 	
         :rtype: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        return (self.model_coefs[:-1] * points).sum(axis=1) + self.model_coefs[  		  	   		 	 	 			  		 			 	 	 		 		 	
-            -1  		  	   		 	 	 			  		 			 	 	 		 		 	
-        ]  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
-    print("the secret clue is 'zzyzx'")
-#  split the leaf into two parts
-#  in the first root find the optimal point
-#  where the rmse is minimized
+        """
+        if not hasattr(self, 'tree_train'):
+            raise ValueError('Model Not Trained')
 
-    import numpy as np
+        tree = self.tree_train
+        # Traverse the tree for each point and return predictions
+        pred = [self.traverse_tree(tree, row) for row in points]
 
-    # Create simple test data
-    np.random.seed(42)
-    x = np.random.random((100, 2)) * 10
-    y = x[:, 0] + x[:, 1] + np.random.normal(0, 0.1, 100)
-
-    # Test the learner
-    learner = DTLearner(    4, verbose=True, min_samples_split=2)  # Create a DTLearner with max depth of 5 and min_samples_split of 2
-    a = learner.build_tree(x, y)
-
-    learner.traverse_tree(a, x)
+        return np.array(pred)
 
 
-    # Test predictions
-    test_x = np.array([[5, 5], [1, 1], [9, 9]])
-    predictions = learner.query(test_x)
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python testlearner.py <filename>")
+        sys.exit(1)
+    inf = open(sys.argv[1])
+    data = np.array(
+        [list(map(float, s.strip().split(","))) for s in inf.readlines()]
+    )
+
+    # compute how much of the data is training and testing
+    train_rows = int(0.6 * data.shape[0])
+    test_rows = data.shape[0] - train_rows
+
+    # separate out training and testing data
+    train_x = data[:train_rows, 0:-1]
+    train_y = data[:train_rows, -1]
+    test_x = data[train_rows:, 0:-1]
+    test_y = data[train_rows:, -1]
+
+    print(f"{test_x.shape}")
+    print(f"{test_y.shape}")
+
+    # create a learner and train it
+    learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner
+    learner.add_evidence(train_x, train_y)  # train it
+    print(learner.author())
+
+    # evaluate in sample
+    pred_y = learner.query(train_x)  # get the predictions
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+    print()
+    print("In sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=train_y)
+    print(f"corr: {c[0, 1]}")
+
+    # evaluate out of sample
+    pred_y = learner.query(test_x)  # get the predictions
+    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+    print()
+    print("Out of sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=test_y)
+    print(f"corr: {c[0, 1]}")
+
 
