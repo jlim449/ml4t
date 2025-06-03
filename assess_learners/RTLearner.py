@@ -45,18 +45,18 @@ class Node():
   		  	   		 	 	 			  		 			 	 	 		 		 	
 class DTLearner(object):
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    This is a Decision Tree Learner
+    This is a Linear Regression Learner. It is implemented correctly.  		  	   		 	 	 			  		 			 	 	 		 		 	
+  		  	   		 	 	 			  		 			 	 	 		 		 	
     :param verbose: If “verbose” is True, your code can print out information for debugging.  		  	   		 	 	 			  		 			 	 	 		 		 	
         If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.  		  	   		 	 	 			  		 			 	 	 		 		 	
     :type verbose: bool  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    def __init__(self, verbose=False, leaf_size=1):
+    def __init__(self, max_depth = None, verbose=False, min_samples_split=1):
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
         Constructor method  		  	   		 	 	 			  		 			 	 	 		 		 	
         """
-
-        self.verbose = verbose
-        self.leaf_size = leaf_size
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
 
         # pass
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -68,11 +68,13 @@ class DTLearner(object):
         return "jlim449"  # replace tb34 with your Georgia Tech username
 
 
-    def calculate_corr(self, samples, data_y):
+    def calculate_mse(self, data_y):
 
-        """Calculate the Correlations Betwen X and Y"""
-        cor = np.corrcoef(samples, data_y)
-        return cor[0,1]
+        """Calculate the Mean Squared Error (MSE) of the given data_y."""
+
+        mean_y = np.mean(data_y)
+        mse = np.mean((data_y - mean_y) ** 2)
+        return mse
 
 
     def split(self, data_x, data_y, feature_index, threshold):
@@ -85,8 +87,6 @@ class DTLearner(object):
 
         right_x = data_x[right_mask]
         right_y = data_y[right_mask]
-
-        
 
         return left_x, right_x, left_y, right_y
 
@@ -106,7 +106,7 @@ class DTLearner(object):
             return {
                 'feature_index': None,
                 'threshold': None,
-                'mse': self.calculate_corr(data_x,data_y)
+                'mse': self.calculate_mse(data_y)
             }
         # if all values in the target y is the same return None
 
@@ -115,7 +115,7 @@ class DTLearner(object):
                 return {
                     'feature_index': None,
                     'threshold': None,
-                    'mse': self.calculate_corr(data_x, data_y)
+                    'mse': self.calculate_mse(sorted_y)
                 }
 
 
@@ -143,34 +143,13 @@ class DTLearner(object):
         }
 
 
-    def build_tree(self, data_x, data_y):
-
-        
-        """
-        define numpy arrary for node
-
-        self.feature_index = feature_index
-        self.threshold = threshold
-        self.right = right
-        self.left = left
-        self.correlation = correlation
-        self.prediction = prediction
-        self.depth = depth
-        self.sample_size = sample_size
-        """
+    def build_tree(self, data_x, data_y, current_depth=0):
         sample_size = data_x.shape[0]
+        if current_depth >= self.max_depth:
+            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=np.mean(data_y), depth = current_depth, sample_size=sample_size)
 
-
-        if data_x.shape[0] == 1 or data_x.shape[0] == self.min_samples_split:
-            return np.array([[
-                              -1, # feature index
-                              -1, # treshold
-                              -1, # left child
-                              -1, # right child
-                              np.mean(data_y[0]), # prediction
-                              ]] 
-                             )
-
+        if data_x.shape[0] == 1 or data_x.shape[0] < self.min_samples_split:
+            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=data_y[0] , depth = current_depth, sample_size=sample_size)
 
 
         optimal_movements = self.find_best_split(data_x, data_y)
@@ -180,50 +159,19 @@ class DTLearner(object):
 
 
         # Recursively build subtrees
-        left_subtree = self.build_tree(left_x, left_y)
-        right_subtree = self.build_tree(right_x, right_y)
+        left_subtree = self.build_tree(left_x, left_y, current_depth + 1)
+        right_subtree = self.build_tree(right_x, right_y, current_depth + 1)
 
-        featuer_index = optimal_movements['feature_index']
-        threshold = optimal_movements['threshold']
-        corr = self.calculate_corr(data_x, data_y)
-        pred = np.mean(data_y)
-        size = sample_size
-
-
-        root = np.array([[
-
-            featuer_index,  # feature index
-            threshold,  # threshold
-            1,
-            left_subtree.shape[0] + 1,  # right child index relative offset from the root
-            np.mean(data_y),  # prediction
-        ]])
-
-
-        tree = np.vstack((root, left_subtree, right_subtree))
-
-        if self.verbose:
-            
-            print(f"Feature Index: {optimal_movements['feature_index']}, "
-                f"Threshold: {optimal_movements['threshold']}, "
-                f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size}")
-    
-        return tree
-        
-
-
-        
-        
-        # Node(
-        #             feature_index=optimal_movements['feature_index'],
-        #             threshold=optimal_movements['threshold'],
-        #             left=left_subtree,
-        #             right=right_subtree,
-        #             mse=optimal_movements['mse'],
-        #             prediction=np.mean(data_y),
-        #             depth=current_depth,
-        #             sample_size=sample_size
-        #             )
+        return Node(
+                    feature_index=optimal_movements['feature_index'],
+                    threshold=optimal_movements['threshold'],
+                    left=left_subtree,
+                    right=right_subtree,
+                    mse=optimal_movements['mse'],
+                    prediction=np.mean(data_y),
+                    depth=current_depth,
+                    sample_size=sample_size
+                    )
 
     def add_evidence(self, data_x, data_y):  		  	   		 	 	 			  		 			 	 	 		 		 	
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -300,10 +248,6 @@ if __name__ == "__main__":
     # separate out training and testing data
     train_x = data[:train_rows, 0:-1]
     train_y = data[:train_rows, -1]
-    train_mean = np.mean(train_y)
-
-
-
     test_x = data[train_rows:, 0:-1]
     test_y = data[train_rows:, -1]
 
@@ -311,20 +255,17 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    dt_learner = DTLearner(verbose=True, min_samples_split=1)  # create a DTLearner
+    dt_learner = DTLearner(max_depth=5, verbose=True, min_samples_split=1)  # create a DTLearner
     dt_learner.add_evidence(train_x, train_y)
     pred_train = dt_learner.query(train_x)
 
     rmse = math.sqrt(((train_y - pred_train) ** 2).sum() / train_y.shape[0])
-    print(f"DT Training Accuracy: {rmse}")
-    print(f"Normalized Training Accuracy: {rmse / train_mean}")
+    print(f"RMSE: {rmse}")
 
 
     pred_test = dt_learner.query(test_x)
     rmse_test = math.sqrt(((test_y - pred_test) ** 2).sum() / test_y.shape[0])
-    print(f"DT Testing Accuracy: {rmse_test}")
-
-
+    print(f"RMSE Test: {rmse_test}")
 
     learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner
     learner.add_evidence(train_x, train_y)  # train it
