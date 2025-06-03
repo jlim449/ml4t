@@ -24,6 +24,7 @@ GT honor code violation.
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np
+import LinRegLearner as lrl
 
 
 class Node():
@@ -218,13 +219,27 @@ class DTLearner(object):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python testlearner.py <filename>")
-        sys.exit(1)
-    inf = open(sys.argv[1])
-    data = np.array(
-        [list(map(float, s.strip().split(","))) for s in inf.readlines()]
-    )
+    import sys
+    import math
+    import numpy as np
+    import os
+
+
+    dir = os.path.dirname(__file__)
+    folder = 'Data'
+    file = 'Istanbul.csv'
+    file_path = os.path.join(dir, folder, file)
+
+    with open(file_path) as inf:
+        next(inf)  # Skip header row
+        # Process each line: split by comma, take elements from the second onwards, then map to float
+        data_rows = []
+        for line in inf:
+            parts = line.strip().split(",")
+            # Skip the first column (date) and convert the rest to float
+            data_rows.append(list(map(float, parts[1:])))
+        data = np.array(data_rows)
+
 
     # compute how much of the data is training and testing
     train_rows = int(0.6 * data.shape[0])
@@ -240,9 +255,35 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
+    dt_learner = DTLearner(max_depth=5, verbose=True, min_samples_split=1)  # create a DTLearner
+    dt_learner.add_evidence(train_x, train_y)
+    pred_train = dt_learner.query(train_x)
+
+    rmse = math.sqrt(((train_y - pred_train) ** 2).sum() / train_y.shape[0])
+    print(f"RMSE: {rmse}")
+
     learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner
     learner.add_evidence(train_x, train_y)  # train it
+
+    pred_test = dt_learner.query(test_x)
+    rmse_test = math.sqrt(((test_y - pred_test) ** 2).sum() / test_y.shape[0])
+    print(f"RMSE Test: {rmse_test}")
+
+
     print(learner.author())
+
+    # evaluate in sample
+    pred_y = learner.query(train_x)  # get the predictions
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+
+    print("In sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=train_y)
+    print(f"corr: {c[0, 1]}")
+
+
+
+
 
     # evaluate in sample
     pred_y = learner.query(train_x)  # get the predictions
