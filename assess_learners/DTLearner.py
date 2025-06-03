@@ -93,7 +93,7 @@ class DTLearner(object):
 
     def find_best_split(self, data_x, data_y):
     #find the splits that will results in minimum MSE for each feature
-        best_mse = float('inf')
+        best_corr = 0
         best_feature_index = None
         n_samples, features =  data_x.shape
 
@@ -106,7 +106,7 @@ class DTLearner(object):
             return {
                 'feature_index': None,
                 'threshold': None,
-                'mse': self.calculate_corr(data_x,data_y)
+                'corr': self.calculate_corr(data_x,data_y)
             }
         # if all values in the target y is the same return None
 
@@ -115,7 +115,7 @@ class DTLearner(object):
                 return {
                     'feature_index': None,
                     'threshold': None,
-                    'mse': self.calculate_corr(data_x, data_y)
+                    'corr': self.calculate_corr(data_x, data_y)
                 }
 
 
