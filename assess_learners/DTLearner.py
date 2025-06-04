@@ -204,7 +204,7 @@ class DTLearner(object):
         curr_node = self.tree_train[node_idx]
         feature_idx = int(curr_node[0])
 
-        # If this is a leaf node (feature_idx == -1), return prediction
+        # If  leaf node  return prediction
         if feature_idx == -1:
             return curr_node[4]
 
