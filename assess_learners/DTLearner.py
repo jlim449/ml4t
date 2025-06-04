@@ -71,8 +71,12 @@ class DTLearner(object):
     def calculate_corr(self, samples, data_y):
 
         """Calculate the Correlations Betwen X and Y"""
-        cor = np.corrcoef(samples, data_y)
-        return cor[0,1]
+        try:
+            cor = abs(np.corrcoef(samples, data_y)[0, 1])
+        except Exception as e:
+            print(f"Error calculating correlation: {e}")
+            cor = 0
+        return cor
 
 
     def split(self, data_x, data_y, feature_index, threshold):
@@ -102,44 +106,32 @@ class DTLearner(object):
             return None, None, None
 
 
-        if len(np.unique(data_y)) == 1:
+        if len(np.unique(data_y)) == 1 or n_samples == 1:
             return {
                 'feature_index': None,
                 'threshold': None,
-                'corr': self.calculate_corr(data_x,data_y)
+                'corr': 0
             }
         # if all values in the target y is the same return None
 
         for feature_index in range(features):
-            if len(data_y) == 1:
-                return {
-                    'feature_index': None,
-                    'threshold': None,
-                    'corr': self.calculate_corr(data_x, data_y)
-                }
-
-
-            split_val = np.median(data_x[:, feature_index])
-            left_mask = data_x[:, feature_index] <= split_val
-            right_mask = data_x[:, feature_index] > split_val
-
-            left_output = data_y[left_mask]
-            right_output = data_y[right_mask]
-
-            left_mse = self.calculate_mse(left_output)
-            right_mse = self.calculate_mse(right_output)
-            mse_split = (len(left_output) * left_mse + len(right_output) * right_mse) / (len(left_output) + len(right_output))
-
-            # calculate MSE for the left and right splits
-            if mse_split < best_mse:
-                best_mse = mse_split
+            corr = self.calculate_corr(data_x[:, feature_index], data_y)
+            if corr < best_corr:
+                continue
+            else:
+                best_corr = corr
                 best_feature_index = feature_index
-                best_threshold = split_val
+    
+            
+
+
+        split_val = np.median(data_x[:, best_feature_index])
+
 
         return {
             'feature_index': best_feature_index,
-            'threshold': best_threshold,
-            'mse': best_mse
+            'threshold': split_val
+
         }
 
 
@@ -161,7 +153,7 @@ class DTLearner(object):
         sample_size = data_x.shape[0]
 
 
-        if data_x.shape[0] == 1 or data_x.shape[0] == self.min_samples_split:
+        if data_x.shape[0] == 1 or data_x.shape[0] == self.leaf_size:
             return np.array([[
                               -1, # feature index
                               -1, # treshold
@@ -170,14 +162,10 @@ class DTLearner(object):
                               np.mean(data_y[0]), # prediction
                               ]] 
                              )
-
-
-
         optimal_movements = self.find_best_split(data_x, data_y)
 
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
             optimal_movements['feature_index'], optimal_movements['threshold'])
-
 
         # Recursively build subtrees
         left_subtree = self.build_tree(left_x, left_y)
@@ -185,13 +173,7 @@ class DTLearner(object):
 
         featuer_index = optimal_movements['feature_index']
         threshold = optimal_movements['threshold']
-        corr = self.calculate_corr(data_x, data_y)
-        pred = np.mean(data_y)
-        size = sample_size
-
-
         root = np.array([[
-
             featuer_index,  # feature index
             threshold,  # threshold
             1,
@@ -199,31 +181,14 @@ class DTLearner(object):
             np.mean(data_y),  # prediction
         ]])
 
-
         tree = np.vstack((root, left_subtree, right_subtree))
 
         if self.verbose:
-            
             print(f"Feature Index: {optimal_movements['feature_index']}, "
                 f"Threshold: {optimal_movements['threshold']}, "
                 f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size}")
     
         return tree
-        
-
-
-        
-        
-        # Node(
-        #             feature_index=optimal_movements['feature_index'],
-        #             threshold=optimal_movements['threshold'],
-        #             left=left_subtree,
-        #             right=right_subtree,
-        #             mse=optimal_movements['mse'],
-        #             prediction=np.mean(data_y),
-        #             depth=current_depth,
-        #             sample_size=sample_size
-        #             )
 
     def add_evidence(self, data_x, data_y):  		  	   		 	 	 			  		 			 	 	 		 		 	
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -235,21 +200,23 @@ class DTLearner(object):
         self.tree_train = self.build_tree(data_x, data_y)
 
 
+    def traverse_numpy_recursively(self, point : np.ndarray, node_idx : int):
+        curr_node = self.tree_train[node_idx]
+        feature_idx = int(curr_node[0])
 
-    # question : how to to traverse the tree and get the prediction for each point?
-    # Question 2 : based on the traversal, get the average of the Y training data
-    def traverse_tree(self, node, points):
-    #     while loop to traverse the tree
-        current_node = node
-        while current_node.left is not None and current_node.right is not None:
-            feature_value = int(current_node.feature_index)
-            # left and right children
+        # If this is a leaf node (feature_idx == -1), return prediction
+        if feature_idx == -1:
+            return curr_node[4]
 
-            if points[feature_value] <= current_node.threshold:
-                current_node = current_node.left
-            else:
-                current_node = current_node.right
-        return current_node.prediction
+        # Otherwise, test the feature against threshold
+        threshold = curr_node[1]
+        if point[feature_idx] <= threshold:
+            # Go to left child
+            return self.traverse_numpy_recursively(point, node_idx + int(curr_node[2]))
+
+        else:
+            # Go to right child
+            return self.traverse_numpy_recursively(point, node_idx + int(curr_node[3]))
 
 
     def query(self, points):  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -263,11 +230,9 @@ class DTLearner(object):
         if not hasattr(self, 'tree_train'):
             raise ValueError('Model Not Trained')
 
-        tree = self.tree_train
-        # Traverse the tree for each point and return predictions
-        pred = [self.traverse_tree(tree, row) for row in points]
+        # For each point in the test set
 
-        return np.array(pred)
+        return np.array([self.traverse_numpy_recursively(point, 0) for point in points])
 
 
 if __name__ == "__main__":
@@ -311,7 +276,7 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    dt_learner = DTLearner(verbose=True, min_samples_split=1)  # create a DTLearner
+    dt_learner = DTLearner(verbose=True, leaf_size=1)  # create a DTLearner
     dt_learner.add_evidence(train_x, train_y)
     pred_train = dt_learner.query(train_x)
 
