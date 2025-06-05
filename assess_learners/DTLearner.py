@@ -26,45 +26,28 @@ GT honor code violation.
 import numpy as np
 import LinRegLearner as lrl
 
-
-class Node():
-    def __init__(self, feature_index=None, threshold=None, left=None, right=None, mse = None, prediction=None
-                 , depth = None
-                 , sample_size = None
-                 ):
-        """Initialize a node in the decision tree."""
-        # self.root = None
-        self.feature_index = feature_index
-        self.threshold = threshold
-        self.left = left  # Left child node
-        self.right = right
-        self.mse = mse
-        self.prediction = prediction
-        self.depth = depth
-        self.sample_size = sample_size
-  		  	   		 	 	 			  		 			 	 	 		 		 	
 class DTLearner(object):
-    """  		  	   		 	 	 			  		 			 	 	 		 		 	
+    """
     This is a Decision Tree Learner
-    :param verbose: If “verbose” is True, your code can print out information for debugging.  		  	   		 	 	 			  		 			 	 	 		 		 	
-        If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.  		  	   		 	 	 			  		 			 	 	 		 		 	
-    :type verbose: bool  		  	   		 	 	 			  		 			 	 	 		 		 	
-    """  		  	   		 	 	 			  		 			 	 	 		 		 	
+    :param verbose: If “verbose” is True, your code can print out information for debugging.
+        If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.
+    :type verbose: bool
+    """
     def __init__(self, verbose=False, leaf_size=1):
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        Constructor method  		  	   		 	 	 			  		 			 	 	 		 		 	
+        """
+        Constructor method
         """
 
         self.verbose = verbose
         self.leaf_size = leaf_size
 
         # pass
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-    def author(self):  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+    def author(self):
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
         :return: The GT username of the student  		  	   		 	 	 			  		 			 	 	 		 		 	
         :rtype: str  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
+        """
         return "jlim449"  # replace tb34 with your Georgia Tech username
 
 
@@ -90,7 +73,7 @@ class DTLearner(object):
         right_x = data_x[right_mask]
         right_y = data_y[right_mask]
 
-        
+
 
         return left_x, right_x, left_y, right_y
 
@@ -121,8 +104,8 @@ class DTLearner(object):
             else:
                 best_corr = corr
                 best_feature_index = feature_index
-    
-            
+
+
 
 
         split_val = np.median(data_x[:, best_feature_index])
@@ -137,7 +120,7 @@ class DTLearner(object):
 
     def build_tree(self, data_x, data_y):
 
-        
+
         """
         define numpy arrary for node
 
@@ -160,7 +143,7 @@ class DTLearner(object):
                               -1, # left child
                               -1, # right child
                               np.mean(data_y[0]), # prediction
-                              ]] 
+                              ]]
                              )
         optimal_movements = self.find_best_split(data_x, data_y)
 
@@ -183,14 +166,18 @@ class DTLearner(object):
 
         tree = np.vstack((root, left_subtree, right_subtree))
 
+
         if self.verbose:
             print(f"Feature Index: {optimal_movements['feature_index']}, "
-                f"Threshold: {optimal_movements['threshold']}, "
-                f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size}")
-    
+                  f"Threshold: {optimal_movements['threshold']}, "
+                  f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size},"
+                  f"Leaf : {'Yes' if optimal_movements['feature_index'] == -1 else 'No'}"
+                  )
+
+
         return tree
 
-    def add_evidence(self, data_x, data_y):  		  	   		 	 	 			  		 			 	 	 		 		 	
+    def add_evidence(self, data_x, data_y):
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
         Add training data to learner  		  	   		 	 	 			  		 			 	 	 		 		 	  		  	   		 	 	 			  		 			 	 	 		 		 	
         :param data_y: The value we are attempting to predict given the X data  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -219,7 +206,7 @@ class DTLearner(object):
             return self.traverse_numpy_recursively(point, node_idx + int(curr_node[3]))
 
 
-    def query(self, points):  		  	   		 	 	 			  		 			 	 	 		 		 	
+    def query(self, points):
         """  		  	   		 	 	 			  		 			 	 	 		 		 	
         Estimate a set of test points given the model we built. 			  		 			 	 	 		 		 	
         :param points: A numpy array with each row corresponding to a specific query.  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -276,7 +263,7 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    dt_learner = DTLearner(verbose=True, leaf_size=1)  # create a DTLearner
+    dt_learner = DTLearner(verbose=True, leaf_size=10)  # create a DTLearner
     dt_learner.add_evidence(train_x, train_y)
     pred_train = dt_learner.query(train_x)
 

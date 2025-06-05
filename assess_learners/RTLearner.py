@@ -26,56 +26,45 @@ GT honor code violation.
 import numpy as np
 import LinRegLearner as lrl
 
+import numpy as np
+import LinRegLearner as lrl
+import DTLearner as dt
 
-class Node():
-    def __init__(self, feature_index=None, threshold=None, left=None, right=None, mse = None, prediction=None
-                 , depth = None
-                 , sample_size = None
-                 ):
-        """Initialize a node in the decision tree."""
-        # self.root = None
-        self.feature_index = feature_index
-        self.threshold = threshold
-        self.left = left  # Left child node
-        self.right = right
-        self.mse = mse
-        self.prediction = prediction
-        self.depth = depth
-        self.sample_size = sample_size
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-class DTLearner(object):
-    """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    This is a Linear Regression Learner. It is implemented correctly.  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-    :param verbose: If “verbose” is True, your code can print out information for debugging.  		  	   		 	 	 			  		 			 	 	 		 		 	
-        If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.  		  	   		 	 	 			  		 			 	 	 		 		 	
-    :type verbose: bool  		  	   		 	 	 			  		 			 	 	 		 		 	
-    """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    def __init__(self, max_depth = None, verbose=False, min_samples_split=1):
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        Constructor method  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+class RTLearner(object):
+    """
+    This is a Decision Tree Learner
+    :param verbose: If “verbose” is True, your code can print out information for debugging.
+        If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.
+    :type verbose: bool
+    """
+
+    def __init__(self, verbose=False, leaf_size=1):
         """
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
+        Constructor method
+        """
+
+        self.verbose = verbose
+        self.leaf_size = leaf_size
 
         # pass
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-    def author(self):  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :return: The GT username of the student  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :rtype: str  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+    def author(self):
+        """
+        :return: The GT username of the student
+        :rtype: str
+        """
         return "jlim449"  # replace tb34 with your Georgia Tech username
 
+    def calculate_corr(self, samples, data_y):
 
-    def calculate_mse(self, data_y):
-
-        """Calculate the Mean Squared Error (MSE) of the given data_y."""
-
-        mean_y = np.mean(data_y)
-        mse = np.mean((data_y - mean_y) ** 2)
-        return mse
-
+        """Calculate the Correlations Betwen X and Y"""
+        try:
+            cor = abs(np.corrcoef(samples, data_y)[0, 1])
+        except Exception as e:
+            print(f"Error calculating correlation: {e}")
+            cor = 0
+        return cor
 
     def split(self, data_x, data_y, feature_index, threshold):
 
@@ -90,132 +79,132 @@ class DTLearner(object):
 
         return left_x, right_x, left_y, right_y
 
-
     def find_best_split(self, data_x, data_y):
-    #find the splits that will results in minimum MSE for each feature
-        best_mse = float('inf')
+        # find the splits that will results in minimum MSE for each feature
+        best_corr = 0
         best_feature_index = None
-        n_samples, features =  data_x.shape
-
+        n_samples, features = data_x.shape
 
         if n_samples == 0:
             return None, None, None
 
-
-        if len(np.unique(data_y)) == 1:
+        if len(np.unique(data_y)) == 1 or n_samples == 1:
             return {
                 'feature_index': None,
                 'threshold': None,
-                'mse': self.calculate_mse(data_y)
+                'corr': 0
             }
         # if all values in the target y is the same return None
 
         for feature_index in range(features):
-            if len(data_y) == 1:
-                return {
-                    'feature_index': None,
-                    'threshold': None,
-                    'mse': self.calculate_mse(sorted_y)
-                }
-
-
-            split_val = np.median(data_x[:, feature_index])
-            left_mask = data_x[:, feature_index] <= split_val
-            right_mask = data_x[:, feature_index] > split_val
-
-            left_output = data_y[left_mask]
-            right_output = data_y[right_mask]
-
-            left_mse = self.calculate_mse(left_output)
-            right_mse = self.calculate_mse(right_output)
-            mse_split = (len(left_output) * left_mse + len(right_output) * right_mse) / (len(left_output) + len(right_output))
-
-            # calculate MSE for the left and right splits
-            if mse_split < best_mse:
-                best_mse = mse_split
+            corr = self.calculate_corr(data_x[:, feature_index], data_y)
+            if corr < best_corr:
+                continue
+            else:
+                best_corr = corr
                 best_feature_index = feature_index
-                best_threshold = split_val
+
+        split_val = np.median(data_x[:, best_feature_index])
 
         return {
             'feature_index': best_feature_index,
-            'threshold': best_threshold,
-            'mse': best_mse
+            'threshold': split_val
+
         }
 
+    def build_tree(self, data_x, data_y):
 
-    def build_tree(self, data_x, data_y, current_depth=0):
+        """
+        define numpy arrary for node
+        self.feature_index = feature_index
+        self.threshold = threshold
+        self.right = right
+        self.left = left
+        self.prediction = prediction
+        """
         sample_size = data_x.shape[0]
-        if current_depth >= self.max_depth:
-            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=np.mean(data_y), depth = current_depth, sample_size=sample_size)
 
-        if data_x.shape[0] == 1 or data_x.shape[0] < self.min_samples_split:
-            return Node(feature_index=None, threshold=None, left=None, right=None, prediction=data_y[0] , depth = current_depth, sample_size=sample_size)
-
-
+        if data_x.shape[0] == 1 or data_x.shape[0] == self.leaf_size or len(np.unique(data_y)) == 1:
+            return np.array([[
+                -1,  # feature index
+                -1,  # treshold
+                -1,  # left child
+                -1,  # right child
+                np.mean(data_y[0]),  # prediction
+            ]]
+            )
         optimal_movements = self.find_best_split(data_x, data_y)
 
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
-            optimal_movements['feature_index'], optimal_movements['threshold'])
-
+                                                      optimal_movements['feature_index'],
+                                                      optimal_movements['threshold'])
 
         # Recursively build subtrees
-        left_subtree = self.build_tree(left_x, left_y, current_depth + 1)
-        right_subtree = self.build_tree(right_x, right_y, current_depth + 1)
+        left_subtree = self.build_tree(left_x, left_y)
+        right_subtree = self.build_tree(right_x, right_y)
 
-        return Node(
-                    feature_index=optimal_movements['feature_index'],
-                    threshold=optimal_movements['threshold'],
-                    left=left_subtree,
-                    right=right_subtree,
-                    mse=optimal_movements['mse'],
-                    prediction=np.mean(data_y),
-                    depth=current_depth,
-                    sample_size=sample_size
-                    )
+        featuer_index = optimal_movements['feature_index']
+        threshold = optimal_movements['threshold']
+        root = np.array([[
+            featuer_index,  # feature index
+            threshold,  # threshold
+            1,
+            left_subtree.shape[0] + 1,  # right child index relative offset from the root
+            np.mean(data_y),  # prediction
+        ]])
 
-    def add_evidence(self, data_x, data_y):  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        Add training data to learner  		  	   		 	 	 			  		 			 	 	 		 		 	  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :param data_y: The value we are attempting to predict given the X data  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :type data_y: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
+        tree = np.vstack((root, left_subtree, right_subtree))
+
+        if self.verbose:
+            print(f"Feature Index: {optimal_movements['feature_index']}, "
+                  f"Threshold: {optimal_movements['threshold']}, "
+                  f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size},"
+                  f"Leaf : {'Yes' if optimal_movements['feature_index'] == -1 else 'No'}"
+                  )
+
+        return tree
+
+    def add_evidence(self, data_x, data_y):
+        """
+        Add training data to learner
+        :param data_y: The value we are attempting to predict given the X data
+        :type data_y: numpy.ndarray
         """
         # slap on 1s column so linear regression finds a constant term
         self.tree_train = self.build_tree(data_x, data_y)
 
+    def traverse_numpy_recursively(self, point: np.ndarray, node_idx: int):
+        curr_node = self.tree_train[node_idx]
+        feature_idx = int(curr_node[0])
 
+        # If  leaf node  return prediction
+        if feature_idx == -1:
+            return curr_node[4]
 
-    # question : how to to traverse the tree and get the prediction for each point?
-    # Question 2 : based on the traversal, get the average of the Y training data
-    def traverse_tree(self, node, points):
-    #     while loop to traverse the tree
-        current_node = node
-        while current_node.left is not None and current_node.right is not None:
-            feature_value = int(current_node.feature_index)
-            # left and right children
+        # Otherwise, test the feature against threshold
+        threshold = curr_node[1]
+        if point[feature_idx] <= threshold:
+            # Go to left child
+            return self.traverse_numpy_recursively(point, node_idx + int(curr_node[2]))
 
-            if points[feature_value] <= current_node.threshold:
-                current_node = current_node.left
-            else:
-                current_node = current_node.right
-        return current_node.prediction
+        else:
+            # Go to right child
+            return self.traverse_numpy_recursively(point, node_idx + int(curr_node[3]))
 
-
-    def query(self, points):  		  	   		 	 	 			  		 			 	 	 		 		 	
-        """  		  	   		 	 	 			  		 			 	 	 		 		 	
-        Estimate a set of test points given the model we built. 			  		 			 	 	 		 		 	
-        :param points: A numpy array with each row corresponding to a specific query.  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :type points: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :return: The predicted result of the input data according to the trained model  		  	   		 	 	 			  		 			 	 	 		 		 	
-        :rtype: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
+    def query(self, points):
+        """
+        Estimate a set of test points given the model we built.
+        :param points: A numpy array with each row corresponding to a specific query.
+        :type points: numpy.ndarray
+        :return: The predicted result of the input data according to the trained model
+        :rtype: numpy.ndarray
         """
         if not hasattr(self, 'tree_train'):
             raise ValueError('Model Not Trained')
 
-        tree = self.tree_train
-        # Traverse the tree for each point and return predictions
-        pred = [self.traverse_tree(tree, row) for row in points]
+        # For each point in the test set
 
-        return np.array(pred)
+        return np.array([self.traverse_numpy_recursively(point, 0) for point in points])
 
 
 if __name__ == "__main__":
