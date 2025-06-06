@@ -24,11 +24,10 @@ GT honor code violation.
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np
-import LinRegLearner as lrl
-
 import numpy as np
 import LinRegLearner as lrl
 import DTLearner as dt
+import random
 
 
 class RTLearner(object):
@@ -96,13 +95,8 @@ class RTLearner(object):
             }
         # if all values in the target y is the same return None
 
-        for feature_index in range(features):
-            corr = self.calculate_corr(data_x[:, feature_index], data_y)
-            if corr < best_corr:
-                continue
-            else:
-                best_corr = corr
-                best_feature_index = feature_index
+        # feature_selection based on random
+        best_feature_index = random.randint(1, features - 1)
 
         split_val = np.median(data_x[:, best_feature_index])
 
@@ -138,6 +132,21 @@ class RTLearner(object):
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
                                                       optimal_movements['feature_index'],
                                                       optimal_movements['threshold'])
+        if self.verbose:
+            if left_x.shape[0] == 0 or right_x.shape[0] == 0:
+                if self.verbose:
+                    print(f"Warning: Split created empty array. Feature: {optimal_movements['feature_index']}, Threshold: {optimal_movements['threshold']}")
+                    print(f"Data shape: {data_x.shape}, Left: {left_x.shape}, Right: {right_x.shape}")
+
+                return np.array([[
+                    -1,  # feature index
+                    -1,  # treshold
+                    -1,  # left child
+                    -1,  # right child
+                    np.mean(data_y[0]),  # prediction
+                ]]
+                )
+
 
         # Recursively build subtrees
         left_subtree = self.build_tree(left_x, left_y)
@@ -244,7 +253,7 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    dt_learner = DTLearner(max_depth=5, verbose=True, min_samples_split=1)  # create a DTLearner
+    dt_learner = RTLearner(leaf_size=1, verbose=True)  # create a DTLearner
     dt_learner.add_evidence(train_x, train_y)
     pred_train = dt_learner.query(train_x)
 
