@@ -253,17 +253,17 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    dt_learner = RTLearner(leaf_size=1, verbose=True)  # create a DTLearner
-    dt_learner.add_evidence(train_x, train_y)
-    pred_train = dt_learner.query(train_x)
+    rt_learner = RTLearner(leaf_size=5, verbose=True)  # create a DTLearner
+    rt_learner.add_evidence(train_x, train_y)
+    pred_train = rt_learner.query(train_x)
 
     rmse = math.sqrt(((train_y - pred_train) ** 2).sum() / train_y.shape[0])
-    print(f"RMSE: {rmse}")
+    print(f"RMSE RT Training: {rmse}")
 
 
-    pred_test = dt_learner.query(test_x)
+    pred_test = rt_learner.query(test_x)
     rmse_test = math.sqrt(((test_y - pred_test) ** 2).sum() / test_y.shape[0])
-    print(f"RMSE Test: {rmse_test}")
+    print(f"RMSE RT Test: {rmse_test}")
 
     learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner
     learner.add_evidence(train_x, train_y)  # train it
