@@ -47,6 +47,7 @@ class BagLearner(object):
         self.bags = bags
         self.boost = boost
         self.verbose = verbose
+        self.models = []
 
 
     def author(self):
@@ -69,6 +70,7 @@ class BagLearner(object):
 
     def bagging(self, data_x, data_y):
 
+        # bagging_models = []
         all_pred = []
 
         bags = self.bags
@@ -80,20 +82,8 @@ class BagLearner(object):
             else:
                 params = {}
             model = self.learner(**params)
-            model.add_evidence(sample_x,sample_y)
-            pred = model.query(data_x)
-            all_pred.append(pred)
-        return np.mean(np.array(all_pred))
-
-    def add_evidence(self, data_x, data_y):
-        """
-        Add training data to learner
-        :param data_y: The value we are attempting to predict given the X data
-        :type data_y: numpy.ndarray
-        """
-        # slap on 1s column so linear regression finds a constant term
-        self.tree_train = self.build_tree(data_x, data_y)
-
+            model.add_evidence(sample_x, sample_y)
+            self.models.append(model)
 
 
 
@@ -105,12 +95,18 @@ class BagLearner(object):
         :return: The predicted result of the input data according to the trained model
         :rtype: numpy.ndarray
         """
-        if not hasattr(self, 'tree_train'):
-            raise ValueError('Model Not Trained')
 
         # For each point in the test set
+        all_pred = []
 
-        return np.array([self.traverse_numpy_recursively(point, 0) for point in points])
+
+        for i in range(self.bags):
+
+            pred = self.models[i].query(points)
+            all_pred.append(pred)
+
+
+        return np.mean(all_pred, axis = 0)
 
 
 if __name__ == "__main__":
@@ -150,15 +146,15 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # create a learner and train it
-    bag = BagLearner(dt.DTLearner, bags = 20, kwargs = {"leaf_size" : 1, "verbose" : True}, boost=False, verbose = False)  # create a DTLearner
+    bag = BagLearner(lrl.LinRegLearner, bags = 20, kwargs = {}, boost=False, verbose = False)  # create a DTLearner
     bag.bagging(train_x, train_y)
-    pred_train = rt_learner.query(train_x)
+    pred_train = bag.query(train_x)
 
     rmse = math.sqrt(((train_y - pred_train) ** 2).sum() / train_y.shape[0])
     print(f"RMSE RT Training: {rmse}")
 
 
-    pred_test = rt_learner.query(test_x)
+    pred_test = bag.query(test_x)
     rmse_test = math.sqrt(((test_y - pred_test) ** 2).sum() / test_y.shape[0])
     print(f"RMSE RT Test: {rmse_test}")
 

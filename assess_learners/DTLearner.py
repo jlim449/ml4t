@@ -58,6 +58,8 @@ class DTLearner(object):
             cor = abs(np.corrcoef(samples, data_y)[0, 1])
         except Exception as e:
             print(f"Error calculating correlation: {e}")
+            print(samples)
+            print(data_y)
             cor = 0
         return cor
 
@@ -86,35 +88,38 @@ class DTLearner(object):
 
 
         if n_samples == 0:
-            return None, None, None
-
+            return None, None
 
         if len(np.unique(data_y)) == 1 or n_samples == 1:
             return {
                 'feature_index': None,
-                'threshold': None,
-                'corr': 0
+                'threshold': None
             }
         # if all values in the target y is the same return None
 
         for feature_index in range(features):
-            corr = self.calculate_corr(data_x[:, feature_index], data_y)
-            if corr < best_corr:
+
+            if len(np.unique(data_x[:, feature_index])) <= 1:
                 continue
-            else:
+            corr = self.calculate_corr(data_x[:, feature_index], data_y)
+            if corr > best_corr:
                 best_corr = corr
                 best_feature_index = feature_index
 
 
-
-
         split_val = np.median(data_x[:, best_feature_index])
+        left_mask = data_x[:, best_feature_index] <= split_val
+        right_mask = data_x[:, best_feature_index] > split_val
 
+        if data_y[left_mask].size == 0 or data_y[right_mask].size == 0:
+            return {
+                'feature_index': -1,
+                'threshold': np.mean(data_y)
+            }
 
         return {
             'feature_index': best_feature_index,
             'threshold': split_val
-
         }
 
 
@@ -136,7 +141,7 @@ class DTLearner(object):
         sample_size = data_x.shape[0]
 
 
-        if data_x.shape[0] == 1 or data_x.shape[0] == self.leaf_size or len(np.unique(data_y)) == 1:
+        if data_x.shape[0] == 1 or data_x.shape[0] <= self.leaf_size or len(np.unique(data_y)) == 1:
             return np.array([[
                               -1, # feature index
                               -1, # treshold
@@ -145,7 +150,12 @@ class DTLearner(object):
                               np.mean(data_y), # prediction
                               ]]
                              )
+
+
         optimal_movements = self.find_best_split(data_x, data_y)
+
+        if optimal_movements['feature_index'] == -1:
+            return np.array([[-1, -1, -1, -1, optimal_movements['threshold']]]) # threshold as pred
 
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
             optimal_movements['feature_index'], optimal_movements['threshold'])
