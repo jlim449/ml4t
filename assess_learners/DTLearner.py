@@ -136,13 +136,13 @@ class DTLearner(object):
         sample_size = data_x.shape[0]
 
 
-        if data_x.shape[0] == 1 or data_x.shape[0] == self.leaf_size:
+        if data_x.shape[0] == 1 or data_x.shape[0] == self.leaf_size or len(np.unique(data_y)) == 1:
             return np.array([[
                               -1, # feature index
                               -1, # treshold
                               -1, # left child
                               -1, # right child
-                              np.mean(data_y[0]), # prediction
+                              np.mean(data_y), # prediction
                               ]]
                              )
         optimal_movements = self.find_best_split(data_x, data_y)
