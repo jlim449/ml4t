@@ -24,29 +24,72 @@ GT honor code violation.
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import math  		  	   		 	 	 			  		 			 	 	 		 		 	
-import sys  		  	   		 	 	 			  		 			 	 	 		 		 	
+import sys
+import datetime
+import random
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np
-import LinRegLearner as lrl  		  	   		 	 	 			  		 			 	 	 		 		 	
+import LinRegLearner as lrl
+import BaggingLearner as bl
+
   		  	   		 	 	 			  		 			 	 	 		 		 	
-if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
-    if len(sys.argv) != 2:  		  	   		 	 	 			  		 			 	 	 		 		 	
-        print("Usage: python testlearner.py <filename>")  		  	   		 	 	 			  		 			 	 	 		 		 	
-        sys.exit(1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    inf = open(sys.argv[1])  		  	   		 	 	 			  		 			 	 	 		 		 	
-    data = np.array(  		  	   		 	 	 			  		 			 	 	 		 		 	
-        [list(map(float, s.strip().split(","))) for s in inf.readlines()]  		  	   		 	 	 			  		 			 	 	 		 		 	
-    )  		  	   		 	 	 			  		 			 	 	 		 		 	
+if __name__ == "__main__":
+    # file = 'Data/Istanbul.csv'
+    # path = sys.argv[1]
+    # inf = open(file)
+    if len(sys.argv) != 2:
+        print("Usage: python testlearner.py <filename>")
+        sys.exit(1)
+
+    # inf = open(sys.argv[1])
+    # data = np.array(
+    #     [list(map(float, s.strip().split(","))) for s in inf.readlines()]
+    # )
+
+    inf = open(sys.argv[1])
+    data = []
+    lines = inf.readlines()
+    valid_cols = []
+    first_lines = [lines[1]]
+
+    # identify features which cannot be turned to float
+    for line in first_lines:
+        values = line.strip().split(',')
+        for index, value in enumerate(values):
+            try:
+                float(value)
+                valid_cols.append(index)
+            except:
+                pass
+
+    # skip first header
+    for line in lines[1:]:
+        val = line.strip().split(",")
+        valid_vals = []
+        for col in valid_cols:
+            valid_vals.append(float(val[col]))
+        data.append(valid_vals)
+    data = np.array(data)
+
+    # data = np.array(
+    #     [list(map(float, s.strip().split(","))) for s in inf.readlines()]
+    # )
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # compute how much of the data is training and testing  		  	   		 	 	 			  		 			 	 	 		 		 	
     train_rows = int(0.6 * data.shape[0])  		  	   		 	 	 			  		 			 	 	 		 		 	
-    test_rows = data.shape[0] - train_rows  		  	   		 	 	 			  		 			 	 	 		 		 	
+    test_rows = data.shape[0] - train_rows
+    train_idx = np.random.choice(data.shape[0], size=train_rows, replace=False)
+
+
+    # test idx
+    mask = np.ones(data.shape[0], dtype=bool)
+    mask[train_idx] = False
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # separate out training and testing data  		  	   		 	 	 			  		 			 	 	 		 		 	
-    train_x = data[:train_rows, 0:-1]  		  	   		 	 	 			  		 			 	 	 		 		 	
-    train_y = data[:train_rows, -1]  		  	   		 	 	 			  		 			 	 	 		 		 	
-    test_x = data[train_rows:, 0:-1]  		  	   		 	 	 			  		 			 	 	 		 		 	
-    test_y = data[train_rows:, -1]  		  	   		 	 	 			  		 			 	 	 		 		 	
+    train_x = data[train_idx, 0:-1]
+    train_y = data[train_idx, -1]
+    test_x = data[mask, 0:-1]
+    test_y = data[mask, -1]
   		  	   		 	 	 			  		 			 	 	 		 		 	
     print(f"{test_x.shape}")  		  	   		 	 	 			  		 			 	 	 		 		 	
     print(f"{test_y.shape}")  		  	   		 	 	 			  		 			 	 	 		 		 	
