@@ -91,7 +91,7 @@ class RTLearner(object):
         }
 
 
-    def build_tree(self, data_x, data_y):
+    def build_tree(self, data_x, data_y, current_depth = 0):
 
 
         """
@@ -110,12 +110,23 @@ class RTLearner(object):
 
 
         if data_x.shape[0] == 1 or data_x.shape[0] <= self.leaf_size or len(np.unique(data_y)) == 1:
+
+            if self.verbose:
+                print("\n--- Leaf Node ---")
+                print("Data in this leaf (X):")
+                print(data_x)
+                print("Data in this leaf (Y):")
+                print(data_y)
+                print("--------------------------\n")
+
+
             return np.array([[
                               -1, # feature index
                               -1, # treshold
                               -1, # left child
                               -1, # right child
                               np.mean(data_y), # prediction
+                              current_depth
                               ]]
                              )
 
@@ -123,14 +134,14 @@ class RTLearner(object):
         optimal_movements = self.find_best_split(data_x, data_y)
 
         if optimal_movements['feature_index'] == -1:
-            return np.array([[-1, -1, -1, -1, optimal_movements['threshold']]]) # threshold as pred
+            return np.array([[-1, -1, -1, -1, optimal_movements['threshold'], current_depth]]) # threshold as pred
 
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
             optimal_movements['feature_index'], optimal_movements['threshold'])
 
         # Recursively build subtrees
-        left_subtree = self.build_tree(left_x, left_y)
-        right_subtree = self.build_tree(right_x, right_y)
+        left_subtree = self.build_tree(left_x, left_y, current_depth + 1)
+        right_subtree = self.build_tree(right_x, right_y, current_depth + 1)
 
         featuer_index = optimal_movements['feature_index']
         threshold = optimal_movements['threshold']
@@ -139,11 +150,11 @@ class RTLearner(object):
             threshold,  # threshold
             1,
             left_subtree.shape[0] + 1,  # right child index relative offset from the root
-            np.mean(data_y),  # prediction
+            np.mean(data_y), # pred
+            current_depth
         ]])
 
         tree = np.vstack((root, left_subtree, right_subtree))
-
 
         if self.verbose:
             print(f"Feature Index: {optimal_movements['feature_index']}, "
@@ -151,8 +162,6 @@ class RTLearner(object):
                   f"Subtree size: {tree.shape[0]}, Sample Size: {sample_size},"
                   f"Leaf : {'Yes' if optimal_movements['feature_index'] == -1 else 'No'}"
                   )
-
-
         return tree
 
     def add_evidence(self, data_x, data_y):

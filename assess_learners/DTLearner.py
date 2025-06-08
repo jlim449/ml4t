@@ -93,7 +93,7 @@ class DTLearner(object):
         }
 
 
-    def build_tree(self, data_x, data_y):
+    def build_tree(self, data_x, data_y, current_depth = 0):
 
 
         """
@@ -112,12 +112,23 @@ class DTLearner(object):
 
 
         if data_x.shape[0] == 1 or data_x.shape[0] <= self.leaf_size or len(np.unique(data_y)) == 1:
+
+            if self.verbose:
+                print("\n--- Leaf Node ---")
+                print("Data in this leaf (X):")
+                print(data_x)
+                print("Data in this leaf (Y):")
+                print(data_y)
+                print("--------------------------\n")
+
+
             return np.array([[
                               -1, # feature index
                               -1, # treshold
                               -1, # left child
                               -1, # right child
                               np.mean(data_y), # prediction
+                              current_depth
                               ]]
                              )
 
@@ -125,14 +136,14 @@ class DTLearner(object):
         optimal_movements = self.find_best_split(data_x, data_y)
 
         if optimal_movements['feature_index'] == -1:
-            return np.array([[-1, -1, -1, -1, optimal_movements['threshold']]]) # threshold as pred
+            return np.array([[-1, -1, -1, -1, optimal_movements['threshold'], current_depth]]) # threshold as pred
 
         left_x, right_x, left_y, right_y = self.split(data_x, data_y,
             optimal_movements['feature_index'], optimal_movements['threshold'])
 
         # Recursively build subtrees
-        left_subtree = self.build_tree(left_x, left_y)
-        right_subtree = self.build_tree(right_x, right_y)
+        left_subtree = self.build_tree(left_x, left_y, current_depth + 1)
+        right_subtree = self.build_tree(right_x, right_y, current_depth + 1)
 
         featuer_index = optimal_movements['feature_index']
         threshold = optimal_movements['threshold']
@@ -141,7 +152,8 @@ class DTLearner(object):
             threshold,  # threshold
             1,
             left_subtree.shape[0] + 1,  # right child index relative offset from the root
-            np.mean(data_y),  # prediction
+            np.mean(data_y), # pred
+            current_depth
         ]])
 
         tree = np.vstack((root, left_subtree, right_subtree))
@@ -163,6 +175,7 @@ class DTLearner(object):
         """
         # slap on 1s column so linear regression finds a constant term
         self.tree_train = self.build_tree(data_x, data_y)
+        self.tree_train
 
 
     def traverse_numpy_recursively(self, point : np.ndarray, node_idx : int):
