@@ -168,7 +168,6 @@ if __name__ == "__main__":
     plt.legend(loc='upper right')
     plt.grid(True)
     plt.savefig('Experiment1.png')
-    plt.show()
 
 
     leaf_sizes = range(1, 101)
@@ -248,7 +247,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.legend(loc='upper right')
     plt.grid(True)
-    plt.savefig('Experiment3.png')
+    plt.savefig('Experiment3-1.png')
 
 
 
@@ -286,7 +285,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.legend(loc='upper right')
     plt.grid(True)
-    plt.savefig('Experiment5.png')
+    plt.savefig('Experiment3-2.png')
 
 
 
