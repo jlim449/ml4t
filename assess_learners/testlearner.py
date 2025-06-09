@@ -85,8 +85,6 @@ if __name__ == "__main__":
     # )
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # compute how much of the data is training and testing
-
-    np.random.seed(900897987)
     train_rows = int(0.6 * data.shape[0])
     test_rows = data.shape[0] - train_rows
     train_idx = np.random.choice(data.shape[0], size=train_rows, replace=False)
