@@ -28,7 +28,8 @@ GT ID: 900897987 (replace with your GT ID)
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import math  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-import numpy as np  		  	   		 	 	 			  		 			 	 	 		 		 	
+import numpy as np
+from scipy.stats import norm
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 # this function should return a dataset (X and Y) that will work  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -49,7 +50,17 @@ def best_4_lin_reg(seed=1489683273):
     y = np.random.random(size=(100,)) * 200 - 100  		  	   		 	 	 			  		 			 	 	 		 		 	
     # Here's is an example of creating a Y from randomly generated  		  	   		 	 	 			  		 			 	 	 		 		 	
     # X with multiple columns  		  	   		 	 	 			  		 			 	 	 		 		 	
-    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
+
+    mu = 75
+    s = 3
+
+    norm = np.random.normal(mu, s, 100)
+
+
+
+
+
     return x, y  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -75,8 +86,9 @@ def author():
     :return: The GT username of the student  		  	   		 	 	 			  		 			 	 	 		 		 	
     :rtype: str  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return "tb34"  # Change this to your user ID  		  	   		 	 	 			  		 			 	 	 		 		 	
+    return "jlim449"  # Change this to your user ID
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 if __name__ == "__main__":  		  	   		 	 	 			  		 			 	 	 		 		 	
-    print("they call me Tim.")  		  	   		 	 	 			  		 			 	 	 		 		 	
+    print("they call me Tim.")
+
