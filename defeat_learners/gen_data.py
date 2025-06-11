@@ -21,15 +21,13 @@ GT honor code violation.
   		  	   		 	 	 			  		 			 	 	 		 		 	
 -----do not edit anything above this line---  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 			  		 			 	 	 		 		 	
-GT User ID: tb34 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
+Student Name: Jae Hwan Lim (replace with your name)  		  	   		 	 	 			  		 			 	 	 		 		 	
+GT User ID: jlim449 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-import math  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
+import math
 import numpy as np
-from scipy.stats import norm
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 # this function should return a dataset (X and Y) that will work  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -46,25 +44,23 @@ def best_4_lin_reg(seed=1489683273):
     :rtype: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     np.random.seed(seed)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    x = np.zeros((100, 2))  		  	   		 	 	 			  		 			 	 	 		 		 	
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # x = np.zeros((100, 2))
+    # y = np.random.random(size=(100,)) * 200 - 100
     # Here's is an example of creating a Y from randomly generated  		  	   		 	 	 			  		 			 	 	 		 		 	
     # X with multiple columns  		  	   		 	 	 			  		 			 	 	 		 		 	
     # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
 
+
+
     mu = 75
     s = 3
-
-    norm = np.random.normal(mu, s, 100)
-
-
-
-
+    x = np.random.normal(mu, s, (100, 3))
+    y = 4 * x[ :, 0] + 2 * x[ :, 1]  + x[ :, 2]
 
     return x, y  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-def best_4_dt(seed=1489683273):  		  	   		 	 	 			  		 			 	 	 		 		 	
+def best_4_dt(seed=1489683273):
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     Returns data that performs significantly better with DTLearner than LinRegLearner.  		  	   		 	 	 			  		 			 	 	 		 		 	
     The data set should include from 2 to 10 columns in X, and one column in Y.  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -76,9 +72,14 @@ def best_4_dt(seed=1489683273):
     :rtype: numpy.ndarray  		  	   		 	 	 			  		 			 	 	 		 		 	
     """  		  	   		 	 	 			  		 			 	 	 		 		 	
     np.random.seed(seed)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    x = np.zeros((100, 2))  		  	   		 	 	 			  		 			 	 	 		 		 	
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return x, y  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # x = np.zeros((100, 2))
+    # y = np.random.random(size=(100,)) * 200 - 100
+
+    shape, scale = 2.0, 1.0
+    x = np.random.gamma(shape=shape, scale=scale, size=(1000 ,3))
+    y = 2**x[:, 0] + 2 * x[:, 1] + x[:, 2]
+
+    return x, y
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def author():  		  	   		 	 	 			  		 			 	 	 		 		 	
