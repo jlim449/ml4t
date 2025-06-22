@@ -27,12 +27,14 @@ GT ID: 900897987 (replace with your GT ID)
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import datetime as dt  		  	   		 	 	 			  		 			 	 	 		 		 	
-import os  		  	   		 	 	 			  		 			 	 	 		 		 	
+import os
+import sys
+sys.path.append('../')
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import pandas as pd  		  	   		 	 	 			  		 			 	 	 		 		 	
-from util import get_data, plot_data  		  	   		 	 	 			  		 			 	 	 		 		 	
+from util import get_data, plot_data, get_orders_data_file
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def compute_portvals(  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -61,12 +63,68 @@ def compute_portvals(
     # TODO: Your code here  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # In the template, instead of computing the value of the portfolio, we just  		  	   		 	 	 			  		 			 	 	 		 		 	
-    # read in the value of IBM over 6 months  		  	   		 	 	 			  		 			 	 	 		 		 	
-    start_date = dt.datetime(2008, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    end_date = dt.datetime(2008, 6, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    portvals = get_data(["IBM"], pd.date_range(start_date, end_date))  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # read in the value of IBM over 6 months
+
+    df = pd.read_csv(orders_file)
+    unique_sym = np.unique(df.Symbol).tolist()
+
+    start_date = pd.to_datetime(df.Date.min())
+    end_date = pd.to_datetime(df.Date.max())
+
+
+
+    # consolidated = [get_data([i], pd.date_range(start_date, end_date)) for i in unique_sym]
+    consolidated = get_data(unique_sym, pd.date_range(start_date, end_date))
+    # remove spy
+    consolidated = consolidated[unique_sym]
+
+    # keep track of trades
+    consolidate_copy = consolidated.copy()
+    consolidate_copy.loc[:, consolidate_copy.columns] = 0
+
+
+    for index, row in df.iterrows():
+        dt = row.Date
+        sym = row.Symbol
+        order = row.Order
+        if order == 'BUY':
+            share = row.Shares
+        else:
+            share = - row.Shares
+
+        consolidate_copy.loc[dt, sym] = share
+
+
+    #     get the price & compute total share
+    #     total_price = 0
+        current_price = consolidated.loc[dt, sym]
+
+        # calculate cash holding
+        start_val -= share * current_price
+        start_val -= (commission / 100) * current_price
+
+        trades = consolidated * consolidate_copy
+        trades_cumulative = trades.cumsum()
+
+
+
+
+
+    #     returns
+    trades = consolidated * consolidate_copy
+    trades_cumulative = trades.cumsum()
+
+
+
+
+
+    start_date = dt.datetime(2008, 1, 1)
+    end_date = dt.datetime(2008, 6, 1)
+
     portvals = portvals[["IBM"]]  # remove SPY  		  	   		 	 	 			  		 			 	 	 		 		 	
-    rv = pd.DataFrame(index=portvals.index, data=portvals.values)  		  	   		 	 	 			  		 			 	 	 		 		 	
+    rv = pd.DataFrame(index=portvals.index, data=portvals.values)
+    test = pd.read_csv(orders_file)
+    test
   		  	   		 	 	 			  		 			 	 	 		 		 	
     return rv  		  	   		 	 	 			  		 			 	 	 		 		 	
     return portvals  		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -80,7 +138,7 @@ def test_code():
     # note that during autograding his function will not be called.  		  	   		 	 	 			  		 			 	 	 		 		 	
     # Define input parameters  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-    of = "./orders/orders2.csv"  		  	   		 	 	 			  		 			 	 	 		 		 	
+    of = "./orders/orders-01.csv"
     sv = 1000000  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Process orders  		  	   		 	 	 			  		 			 	 	 		 		 	
