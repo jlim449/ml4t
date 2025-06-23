@@ -87,7 +87,7 @@ def compute_portvals(
     # holding
     holding = trades.copy()
 
-
+    holding.iloc[0, holding.columns.get_loc('cash')] = 1000000.0
 
     # caseh
     for index, row in df.iterrows():
@@ -116,9 +116,6 @@ def compute_portvals(
 
 
         trades.loc[dt, 'cash'] = - share * current_price
-        holding.loc[dt, 'cash'] = start_val
-
-
         # trades = consolidated * consolidate_copy
 
 
