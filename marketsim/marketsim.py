@@ -85,10 +85,15 @@ def compute_portvals(
     trades['cash'] = 0
 
     # holding
+<<<<<<< HEAD
     holding = trades.copy()
 
     holding.iloc[0, holding.columns.get_loc('cash')] = 1000000.0
+=======
+    # holding = trades.copy()
+>>>>>>> d97015f (commit files)
 
+    # trades.iloc[0, trades.columns.get_loc('cash')] = 1000000.0
     # caseh
     for index, row in df.iterrows():
         dt = row.Date
@@ -99,47 +104,36 @@ def compute_portvals(
         else:
             share = - row.Shares
 
-        trades.loc[dt, sym] = share
-
-
-
-
+        trades.loc[dt, sym] += share
     #     get the price & compute total share
     #     total_price = 0
         current_price = consolidated.loc[dt, sym]
-
-
         # calculate cash holding
-        start_val -= share * current_price
-        start_val -= (commission / 100) * current_price
+
+        impact_fee = abs(share * current_price) * impact
 
 
+<<<<<<< HEAD
 
         trades.loc[dt, 'cash'] = - share * current_price
         # trades = consolidated * consolidate_copy
+=======
+        trades.loc[dt, 'cash'] -= share * current_price
+        trades.loc[dt, 'cash'] -= commission
+        trades.loc[dt, 'cash'] -= impact_fee
 
 
+    holding = trades.cumsum()
+    holding['cash'] = holding['cash'] + start_val
+>>>>>>> d97015f (commit files)
 
+    stocks = holding[unique_sym] * consolidated[unique_sym]
 
+    port_val = stocks.sum(axis = 1) + holding['cash']
+    port_val = pd.DataFrame(port_val)
+    port_val.columns = ['Total_Value']
 
-    #     returns
-    # trades = consolidated * consolidate_copy
-    # trades_cumulative = trades.cumsum()
-
-
-
-
-
-    start_date = dt.datetime(2008, 1, 1)
-    end_date = dt.datetime(2008, 6, 1)
-
-    portvals = portvals[["IBM"]]  # remove SPY  		  	   		 	 	 			  		 			 	 	 		 		 	
-    rv = pd.DataFrame(index=portvals.index, data=portvals.values)
-    test = pd.read_csv(orders_file)
-    test
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return rv  		  	   		 	 	 			  		 			 	 	 		 		 	
-    return portvals  		  	   		 	 	 			  		 			 	 	 		 		 	
+    return port_val
   		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
 def test_code():  		  	   		 	 	 			  		 			 	 	 		 		 	
