@@ -77,12 +77,19 @@ def compute_portvals(
     consolidated = get_data(unique_sym, pd.date_range(start_date, end_date))
     # remove spy
     consolidated = consolidated[unique_sym]
+    consolidated['cash'] = 1
 
     # keep track of trades
-    consolidate_copy = consolidated.copy()
-    consolidate_copy.loc[:, consolidate_copy.columns] = 0
+    trades = consolidated.copy()
+    trades.loc[:, trades.columns] = 0
+    trades['cash'] = 0
+
+    # holding
+    holding = trades.copy()
 
 
+
+    # caseh
     for index, row in df.iterrows():
         dt = row.Date
         sym = row.Symbol
@@ -92,27 +99,35 @@ def compute_portvals(
         else:
             share = - row.Shares
 
-        consolidate_copy.loc[dt, sym] = share
+        trades.loc[dt, sym] = share
+
+
 
 
     #     get the price & compute total share
     #     total_price = 0
         current_price = consolidated.loc[dt, sym]
 
+
         # calculate cash holding
         start_val -= share * current_price
         start_val -= (commission / 100) * current_price
 
-        trades = consolidated * consolidate_copy
-        trades_cumulative = trades.cumsum()
+
+
+        trades.loc[dt, 'cash'] = - share * current_price
+        holding.loc[dt, 'cash'] = start_val
+
+
+        # trades = consolidated * consolidate_copy
 
 
 
 
 
     #     returns
-    trades = consolidated * consolidate_copy
-    trades_cumulative = trades.cumsum()
+    # trades = consolidated * consolidate_copy
+    # trades_cumulative = trades.cumsum()
 
 
 
