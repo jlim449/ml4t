@@ -85,13 +85,10 @@ def compute_portvals(
     trades['cash'] = 0
 
     # holding
-<<<<<<< HEAD
     holding = trades.copy()
 
     holding.iloc[0, holding.columns.get_loc('cash')] = 1000000.0
-=======
     # holding = trades.copy()
->>>>>>> d97015f (commit files)
 
     # trades.iloc[0, trades.columns.get_loc('cash')] = 1000000.0
     # caseh
@@ -112,12 +109,8 @@ def compute_portvals(
 
         impact_fee = abs(share * current_price) * impact
 
-
-<<<<<<< HEAD
-
         trades.loc[dt, 'cash'] = - share * current_price
         # trades = consolidated * consolidate_copy
-=======
         trades.loc[dt, 'cash'] -= share * current_price
         trades.loc[dt, 'cash'] -= commission
         trades.loc[dt, 'cash'] -= impact_fee
@@ -125,10 +118,7 @@ def compute_portvals(
 
     holding = trades.cumsum()
     holding['cash'] = holding['cash'] + start_val
->>>>>>> d97015f (commit files)
-
     stocks = holding[unique_sym] * consolidated[unique_sym]
-
     port_val = stocks.sum(axis = 1) + holding['cash']
     port_val = pd.DataFrame(port_val)
     port_val.columns = ['Total_Value']
