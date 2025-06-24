@@ -109,7 +109,6 @@ def compute_portvals(
 
         impact_fee = abs(share * current_price) * impact
 
-        trades.loc[dt, 'cash'] = - share * current_price
         # trades = consolidated * consolidate_copy
         trades.loc[dt, 'cash'] -= share * current_price
         trades.loc[dt, 'cash'] -= commission
@@ -146,43 +145,50 @@ def test_code():
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Get portfolio stats
 
-    def sharpe_ratio(allocs, prices):
-        norm_prices = prices / prices.iloc[0]
-        allocated = norm_prices * allocs
-        port_val = allocated.sum(axis=1)
+    def sharpe_ratio(port_val):
         daily_returns = port_val.pct_change()
         daily_returns.dropna(inplace=True)
         adr = daily_returns.mean()
         sddr = daily_returns.std()
-        return -adr / sddr * np.sqrt(252)
+        return adr / sddr * np.sqrt(252)
 
     daily_returns = portvals.pct_change()
     daily_returns.dropna(inplace=True)
 
 
-    cr = (portvals.iloc[-1] / portvals.iloc[0]) - 1
-
-
+    cr = (portvals.iloc[-1] / sv) - 1
     adr = daily_returns.mean()
     sddr = daily_returns.std()
-    sr = -sharpe_ratio(allocs, prices)
+    sr = sharpe_ratio(portvals)
 
 
 
     # Here we just fake the data. you should use your code from previous assignments.
-    start_date = dt.datetime(2008, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
-    end_date = dt.datetime(2008, 6, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
+    start_date = portvals.index[0]
+    end_date = portvals.index[-1]
+
+    spy = get_data(['SPY'], pd.date_range(start_date, end_date))
+    spy_cr = (spy.iloc[-1] / spy.iloc[0]) - 1
+
+    spy_daily_returns = spy.pct_change()
+    spy_daily_returns.dropna(inplace=True)
+
+    spy_adr = spy_daily_returns.mean()
+    spy_sddr = spy_daily_returns.std()
+    spy_sr = sharpe_ratio(spy)
+
+
     cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio = [  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.2,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.01,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.02,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        1.5,  		  	   		 	 	 			  		 			 	 	 		 		 	
+        cr,
+        adr,
+        sddr,
+        sr,
     ]  		  	   		 	 	 			  		 			 	 	 		 		 	
     cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY = [  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.2,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.01,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        0.02,  		  	   		 	 	 			  		 			 	 	 		 		 	
-        1.5,  		  	   		 	 	 			  		 			 	 	 		 		 	
+        spy_cr[0],
+        spy_adr[0],
+        spy_sddr[0],
+        spy_sr[0]
     ]  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Compare portfolio against $SPX  		  	   		 	 	 			  		 			 	 	 		 		 	
