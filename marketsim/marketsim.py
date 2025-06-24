@@ -144,8 +144,31 @@ def test_code():
     else:  		  	   		 	 	 			  		 			 	 	 		 		 	
         "warning, code did not return a DataFrame"  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-    # Get portfolio stats  		  	   		 	 	 			  		 			 	 	 		 		 	
-    # Here we just fake the data. you should use your code from previous assignments.  		  	   		 	 	 			  		 			 	 	 		 		 	
+    # Get portfolio stats
+
+    def sharpe_ratio(allocs, prices):
+        norm_prices = prices / prices.iloc[0]
+        allocated = norm_prices * allocs
+        port_val = allocated.sum(axis=1)
+        daily_returns = port_val.pct_change()
+        daily_returns.dropna(inplace=True)
+        adr = daily_returns.mean()
+        sddr = daily_returns.std()
+        return -adr / sddr * np.sqrt(252)
+
+    daily_returns = portvals.pct_change()
+    daily_returns.dropna(inplace=True)
+
+
+    cr = (1 + daily_returns).cumprod() - 1
+
+    adr = daily_returns.mean()
+    sddr = daily_returns.std()
+    sr = -sharpe_ratio(allocs, prices)
+
+
+
+    # Here we just fake the data. you should use your code from previous assignments.
     start_date = dt.datetime(2008, 1, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
     end_date = dt.datetime(2008, 6, 1)  		  	   		 	 	 			  		 			 	 	 		 		 	
     cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio = [  		  	   		 	 	 			  		 			 	 	 		 		 	
