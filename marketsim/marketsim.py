@@ -160,7 +160,8 @@ def test_code():
     daily_returns.dropna(inplace=True)
 
 
-    cr = (1 + daily_returns).cumprod() - 1
+    cr = (portvals.iloc[-1] / portvals.iloc[0]) - 1
+
 
     adr = daily_returns.mean()
     sddr = daily_returns.std()
