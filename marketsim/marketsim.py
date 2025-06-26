@@ -21,8 +21,8 @@ GT honor code violation.
   		  	   		 	 	 			  		 			 	 	 		 		 	
 -----do not edit anything above this line---  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 			  		 			 	 	 		 		 	
-GT User ID: tb34 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
+Student Name: Jae Hwan Lim  		  	   		 	 	 			  		 			 	 	 		 		 	
+GT User ID: jlim443 (replace with your User ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 			  		 			 	 	 		 		 	
 """  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
@@ -35,9 +35,20 @@ import numpy as np
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import pandas as pd  		  	   		 	 	 			  		 			 	 	 		 		 	
 from util import get_data, plot_data, get_orders_data_file
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-  		  	   		 	 	 			  		 			 	 	 		 		 	
-def compute_portvals(  		  	   		 	 	 			  		 			 	 	 		 		 	
+
+def author():
+    return 'jlim443'
+
+
+def gtid():
+    """
+    :return: The GT ID of the student
+    :rtype: int
+    """
+    return 900897987  # replace with your GT ID number
+
+
+def compute_portvals(
     orders_file="./orders/orders.csv",  		  	   		 	 	 			  		 			 	 	 		 		 	
     start_val=1000000,  		  	   		 	 	 			  		 			 	 	 		 		 	
     commission=9.95,  		  	   		 	 	 			  		 			 	 	 		 		 	
