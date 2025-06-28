@@ -49,8 +49,10 @@ def gtid():
 
 
 def compute_portvals(
-    orders_file="./orders/orders.csv",  		  	   		 	 	 			  		 			 	 	 		 		 	
-    start_val=1000000,  		  	   		 	 	 			  		 			 	 	 		 		 	
+    symbol="JPM",
+    start_val=1000000,
+    start_date = dt.datetime(2008, 1, 1),
+    end_date = dt.datetime(2009, 12, 31),
     commission=0,
     impact=0,
 ):  		  	   		 	 	 			  		 			 	 	 		 		 	
