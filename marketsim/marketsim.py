@@ -97,7 +97,6 @@ def compute_portvals(
 
     # holding
     holding = trades.copy()
-
     holding.iloc[0, holding.columns.get_loc('cash')] = 1000000.0
     # holding = trades.copy()
 
