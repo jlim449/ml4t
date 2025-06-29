@@ -96,8 +96,8 @@ def compute_portvals(
     trades['cash'] = 0
 
     # holding
-    holding = trades.copy()
-    holding.iloc[0, holding.columns.get_loc('cash')] = 1000000.0
+    # holding = trades.copy()
+    # holding.iloc[0, holding.columns.get_loc('cash')] = start_val
     # holding = trades.copy()
 
     # trades.iloc[0, trades.columns.get_loc('cash')] = 1000000.0
@@ -143,11 +143,11 @@ def test_code():
     # note that during autograding his function will not be called.  		  	   		 	 	 			  		 			 	 	 		 		 	
     # Define input parameters  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
-    of = "./orders/orders-01.csv"
+    of = "./orders/orders-02.csv"
     sv = 1000000  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
     # Process orders  		  	   		 	 	 			  		 			 	 	 		 		 	
-    portvals = compute_portvals(orders_file=of, start_val=sv)  		  	   		 	 	 			  		 			 	 	 		 		 	
+    portvals = compute_portvals(orders_file=of, start_val=sv, commission=0, impact = 0)
     if isinstance(portvals, pd.DataFrame):  		  	   		 	 	 			  		 			 	 	 		 		 	
         portvals = portvals[portvals.columns[0]]  # just get the first column  		  	   		 	 	 			  		 			 	 	 		 		 	
     else:  		  	   		 	 	 			  		 			 	 	 		 		 	

@@ -29,7 +29,8 @@ GT honor code violation.
 import os  		  	   		 	 	 			  		 			 	 	 		 		 	
 import sys  		  	   		 	 	 			  		 			 	 	 		 		 	
 import traceback as tb  		  	   		 	 	 			  		 			 	 	 		 		 	
-from collections import namedtuple  		  	   		 	 	 			  		 			 	 	 		 		 	
+from collections import namedtuple
+sys.path.append('../')
   		  	   		 	 	 			  		 			 	 	 		 		 	
 import numpy as np  		  	   		 	 	 			  		 			 	 	 		 		 	
   		  	   		 	 	 			  		 			 	 	 		 		 	
