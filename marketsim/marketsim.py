@@ -119,7 +119,6 @@ def compute_portvals(
 
         impact_fee = abs(share * current_price) * impact
 
-        # trades = consolidated * consolidate_copy
         trades.loc[dt, 'cash'] -= share * current_price
         trades.loc[dt, 'cash'] -= commission
         trades.loc[dt, 'cash'] -= impact_fee
