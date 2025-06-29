@@ -49,7 +49,7 @@ def gtid():
 
 
 def compute_portvals(
-    symbol="JPM",
+    order_file : np.ndarray,
     start_val=1000000,
     start_date = dt.datetime(2008, 1, 1),
     end_date = dt.datetime(2009, 12, 31),
@@ -78,18 +78,19 @@ def compute_portvals(
     # In the template, instead of computing the value of the portfolio, we just  		  	   		 	 	 			  		 			 	 	 		 		 	
     # read in the value of IBM over 6 months
 
-    df = pd.read_csv(orders_file)
-    unique_sym = np.unique(df.Symbol).tolist()
+    start_date = order_file.index[0]
+    end_date = order_file.index[-1]
 
-    start_date = pd.to_datetime(df.Date.min())
-    end_date = pd.to_datetime(df.Date.max())
+
+
+
 
 
 
     # consolidated = [get_data([i], pd.date_range(start_date, end_date)) for i in unique_sym]
-    consolidated = get_data(unique_sym, pd.date_range(start_date, end_date))
+    consolidated = order_file.copy()
     # remove spy
-    consolidated = consolidated[unique_sym]
+    # consolidated = consolidated[unique_sym]
     consolidated['cash'] = 1
 
     # keep track of trades
